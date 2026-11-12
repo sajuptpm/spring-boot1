@@ -97,7 +97,7 @@ jobs:
           echo "| **Workflow Run** | [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
       - name: Upload Test Reports
         if: ${{ (inputs.java-version == null || inputs.java-version == 'all' || inputs.java-version == matrix.java.version) && always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "system-test-reports-java-${{ matrix.java.version }}"
           path: "**/build/reports"

@@ -90,7 +90,7 @@ jobs:
           fi
       - name: Upload Plugin Artifacts
         if: steps.target.outputs.mode == 'github-native'
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spring-boot-gradle-plugin-v${{ needs.read-version.outputs.version }}
           path: build-plugin/spring-boot-gradle-plugin/build/maven-repository/
@@ -162,7 +162,7 @@ jobs:
           cd build && zip -r "spring-boot-docs-v${version}.zip" docs-package
       - name: Upload Documentation Artifact
         if: steps.docs-mode.outputs.mode == 'github-native'
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spring-boot-docs-v${{ needs.read-version.outputs.version }}
           path: build/spring-boot-docs-v*.zip

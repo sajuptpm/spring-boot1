@@ -74,7 +74,7 @@ jobs:
         # Generate documentation trigger manifest
         echo "{\"workflow\":\"Trigger Docs Build\",\"repository\":\"${{ github.repository }}\",\"build_version\":\"$BUILD_VERSION\",\"build_sha\":\"$BUILD_SHA\",\"build_refname\":\"$BUILD_REFNAME\",\"docs_branch\":\"docs-build\",\"dispatched\":$DISPATCH_SUCCESS,\"triggered_at\":\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\",\"status\":\"ready\"}" > docs-build-manifest.json
     - name: Upload Docs Trigger Manifest
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: docs-build-metadata
         path: docs-build-manifest.json
