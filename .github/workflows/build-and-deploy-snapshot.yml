@@ -11,7 +11,7 @@ concurrency:
 jobs:
   build-and-deploy-snapshot:
     name: Build and Deploy Snapshot
-    if: ${{ github.repository == 'sajuptpm/spring-boot' || github.repository == 'spring-projects/spring-boot' || github.repository == 'spring-projects/spring-boot-commercial' || vars.ENABLE_SNAPSHOT_BUILD == 'true' }}
+    if: ${{ github.repository == 'sajuptpm/spring-boot1' || github.repository == 'sajuptpm/spring-boot' || github.repository == 'spring-projects/spring-boot' || github.repository == 'spring-projects/spring-boot-commercial' || vars.ENABLE_SNAPSHOT_BUILD == 'true' }}
     runs-on: ${{ vars.UBUNTU_MEDIUM || 'ubuntu-latest' }}
     permissions:
       contents: write

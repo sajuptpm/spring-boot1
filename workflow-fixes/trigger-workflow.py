@@ -15,7 +15,7 @@ import re
 import urllib.request
 import subprocess
 
-REPO = "sajuptpm/spring-boot"
+REPO = os.environ.get("GITHUB_REPOSITORY", "sajuptpm/spring-boot1")
 
 def get_token():
     # 1. Try Git Credential Manager first

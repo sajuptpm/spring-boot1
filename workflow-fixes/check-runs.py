@@ -12,7 +12,7 @@ import urllib.request
 import urllib.error
 import subprocess
 
-REPO = "sajuptpm/spring-boot"
+REPO = os.environ.get("GITHUB_REPOSITORY", "sajuptpm/spring-boot1")
 
 def get_token():
     try:

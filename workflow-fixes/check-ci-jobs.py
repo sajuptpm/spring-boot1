@@ -8,7 +8,8 @@ def check():
     pat = creds.get('password')
     headers = {'Authorization': f'Bearer {pat}', 'User-Agent': 'Python'}
     
-    req = urllib.request.Request('https://api.github.com/repos/sajuptpm/spring-boot/actions/runs/41329135678/jobs', headers=headers)
+    repo = os.environ.get("GITHUB_REPOSITORY", "sajuptpm/spring-boot1")
+    req = urllib.request.Request(f'https://api.github.com/repos/{repo}/actions/runs/41329135678/jobs', headers=headers)
     res = json.loads(urllib.request.urlopen(req).read().decode())
     jobs = res.get('jobs', [])
     print(f"{'JOB NAME':<25} | {'STATUS':<12} | {'CONCLUSION':<12}")

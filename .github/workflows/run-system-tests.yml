@@ -28,7 +28,7 @@ permissions:
 jobs:
   run-system-tests:
     name: "Java ${{ matrix.java.version}}"
-    if: ${{ github.repository == 'sajuptpm/spring-boot' || github.repository == 'spring-projects/spring-boot' }}
+    if: ${{ github.repository == 'sajuptpm/spring-boot1' || github.repository == 'sajuptpm/spring-boot' || github.repository == 'spring-projects/spring-boot' }}
     runs-on: ${{ vars.UBUNTU_MEDIUM || 'ubuntu-latest' }}
     strategy:
       fail-fast: false

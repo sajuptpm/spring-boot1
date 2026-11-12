@@ -7,7 +7,7 @@ permissions:
 jobs:
   build:
     name: Build Pull Request
-    if: ${{ github.repository == 'sajuptpm/spring-boot' || github.repository == 'spring-projects/spring-boot' || vars.ENABLE_PR_BUILD == 'true' }}
+    if: ${{ github.repository == 'sajuptpm/spring-boot1' || github.repository == 'sajuptpm/spring-boot' || github.repository == 'spring-projects/spring-boot' || vars.ENABLE_PR_BUILD == 'true' }}
     runs-on: ${{ vars.UBUNTU_MEDIUM || 'ubuntu-latest' }}
     steps:
       - name: Check Out Code

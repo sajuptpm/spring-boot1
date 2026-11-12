@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys, urllib.request, json, subprocess
+import sys, os, urllib.request, json, subprocess
 
 def check(run_id):
     p = subprocess.Popen(['git', 'credential', 'fill'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -8,11 +8,12 @@ def check(run_id):
     pat = creds.get('password')
     headers = {'Authorization': f'Bearer {pat}', 'User-Agent': 'Python'}
     
-    req = urllib.request.Request(f'https://api.github.com/repos/sajuptpm/spring-boot/actions/runs/{run_id}', headers=headers)
+    repo = os.environ.get("GITHUB_REPOSITORY", "sajuptpm/spring-boot1")
+    req = urllib.request.Request(f'https://api.github.com/repos/{repo}/actions/runs/{run_id}', headers=headers)
     res = json.loads(urllib.request.urlopen(req).read().decode())
     print(f"Run {run_id} ({res.get('name')}) - Status: {res.get('status')} | Conclusion: {res.get('conclusion')}")
     
-    req_jobs = urllib.request.Request(f'https://api.github.com/repos/sajuptpm/spring-boot/actions/runs/{run_id}/jobs', headers=headers)
+    req_jobs = urllib.request.Request(f'https://api.github.com/repos/{repo}/actions/runs/{run_id}/jobs', headers=headers)
     jobs_res = json.loads(urllib.request.urlopen(req_jobs).read().decode())
     for j in jobs_res.get('jobs', []):
         print(f"  {j['name']:<28} | {j['status']:<12} | {str(j['conclusion']):<10}")

@@ -9,7 +9,7 @@ permissions:
 jobs:
   ci:
     name: '${{ matrix.os.name}} | Java ${{ matrix.java.version}}'
-    if: ${{ github.repository == 'sajuptpm/spring-boot' || github.repository == 'spring-projects/spring-boot' || github.repository == 'spring-projects/spring-boot-commercial' || vars.ENABLE_CI == 'true' }}
+    if: ${{ github.repository == 'sajuptpm/spring-boot1' || github.repository == 'sajuptpm/spring-boot' || github.repository == 'spring-projects/spring-boot' || github.repository == 'spring-projects/spring-boot-commercial' || vars.ENABLE_CI == 'true' }}
     runs-on: ${{ matrix.os.id }}
     strategy:
       fail-fast: false
