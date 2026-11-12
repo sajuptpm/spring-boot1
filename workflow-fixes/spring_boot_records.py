@@ -3,18 +3,26 @@
 Defines all 84 data rows for Spring Boot 4.1.2:
 - 49 Upstream Original Tool rows (matching master_list entries 5 to 221)
 - 35 Recommended Fork Alternate rows placed immediately after their respective upstream tool
-Every row has exactly 44 columns matching data1.xlsx headers.
+Every row has exactly 45 columns:
+Column 1: Name of Tool/Infra
+Column 2: Category (marked as 'Infra' or 'Tool')
+Column 3: Version
+...
+Column 21: Pipeline Stage (Build, Test, Package, Release, Release Doc, Internal)
+...
+Column 45: List of all evidence verified
 """
 
 COMPONENT = "Spring Boot 4.1.2"
 
 # =========================================================================
-# REUSABLE ROW GENERATORS
+# REUSABLE ROW GENERATORS (All 45 columns)
 # =========================================================================
 
-def make_hosted_runner(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_hosted_runner(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "GitHub Actions Hosted Runner",
+        "Infra",
         "ubuntu-latest (Ubuntu 24.04 LTS)",
         purpose,
         "Upstream Original Tool",
@@ -33,7 +41,7 @@ def make_hosted_runner(wf_name, wf_yml, category, purpose, evidence, ml_issue):
         "Free for public open-source repositories; 2,000 free pooled minutes/mo for private repos ($0.008/min thereafter)",
         "GitHub Actions Standard Free Tier ($0.00)",
         "Free compute allocation included with public repository hosting.",
-        category,
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
@@ -60,9 +68,10 @@ def make_hosted_runner(wf_name, wf_yml, category, purpose, evidence, ml_issue):
         evidence
     ]
 
-def make_codeql(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_codeql(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "CodeQL",
+        "Tool",
         "github/codeql-action v3 (uses spring-io/github-actions/.github/workflows/codeql-analysis.yml@5caba18f0b41)",
         purpose,
         "Upstream Original Tool",
@@ -81,90 +90,92 @@ def make_codeql(wf_name, wf_yml, category, purpose, evidence, ml_issue):
         "Free on public open-source repos; GHAS enterprise add-on: ~$49/committer/month ($588/yr)",
         "GitHub Open Source Security Scanning (Free)",
         "Native security scanning integrated into GitHub repository at zero cost for public forks.",
-        category,
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
         "Unlimited runs on public repositories.",
         "Execution limited by hosted runner memory and job timeout (6 hours).",
         "GITHUB_TOKEN (security-events: write, actions: read, contents: read)",
-        "Yes; free for public open-source repositories with full security tab integration.",
-        "Yes; zero additional subscription cost on public repositories.",
+        "Yes; 100% free for all maintainers and contributors on public repository.",
+        "Yes; free GitHub Advanced Security included on public repositories.",
         "No",
-        "Automates vulnerability scanning, CVE detection, and security compliance on pull requests and commits.",
+        "Detects CWE security vulnerabilities, SQL injection, and cryptographic weaknesses in pull requests and releases.",
         "Accessible",
         "Yes",
-        "Yes; free semantic security scanner protecting open-source release artifacts against vulnerabilities.",
+        "Yes; GitHub waives all GHAS fees for public repositories; CodeQL runs automatically without license cost.",
         "https://codeql.github.com",
-        "https://github.com/enterprise/advanced-security",
-        "https://docs.github.com/en/code-security/code-scanning/introduction-to-code-scanning/about-code-scanning-with-codeql",
-        "Yes; native GitHub SAST security tool, completely free for public open-source projects.",
+        "https://github.com/features/security",
+        "https://github.com/pricing",
+        "Yes; 100% free for open-source repositories and provides automated security vulnerability detection.",
         "N/A (Fully suitable for open-source model)",
-        "SonarQube Community Edition, Semgrep OSS, SpotBugs, Snyk Open Source",
-        "GitHub CodeQL Action (github/codeql-action v3)",
-        "Official GitHub security scanner, zero licensing cost for public OSS, automatic pull request alerts.",
+        "SonarQube Community Edition, SpotBugs, Semgrep OSS",
+        "GitHub CodeQL Analysis (Retained Native)",
+        "$0 cost, zero server maintenance, automated GitHub PR security checks, deep semantic AST query engine.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_larger_runner_4core(wf_name, wf_yml, category, purpose, evidence, ml_issue, runs_on_label):
+def make_larger_runner_4core(wf_name, wf_yml, stage, purpose, evidence, ml_issue, runs_on_label):
     return [
         "GitHub Actions Larger Runner (4-core)",
-        f"{runs_on_label} (4 vCPU, 16 GB RAM, 150 GB SSD)",
+        "Infra",
+        f"{runs_on_label} (4 vCPU, 16 GB RAM) / vars.UBUNTU_MEDIUM",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Provides extra CPU cores and high RAM (16 GB) to avoid Gradle daemon OutOfMemoryError during heavy multi-module compilation.",
-        "Requires paid GitHub Team or Enterprise organization with metered billing enabled.",
+        "High-performance compute runner utilized by upstream to speed up heavy Gradle compilation and testing.",
+        "Metered per-minute consumption billed to GitHub Enterprise account.",
         "Paid",
-        "Yes (Fails to allocate or queue on personal/unbilled forks without GitHub paid runner entitlement)",
+        "Yes (Custom runner label ubuntu22-2-8 is private to Broadcom's enterprise runner group)",
         "GitHub Terms of Service",
         "Terms of Service",
         "None / Permissive",
         "Permitted",
-        "Local-only (Ephemeral Microsoft Azure VM)",
+        "Local-only (Ephemeral cloud VM)",
         "None",
-        "Permissible (Commercial runner service)",
-        "GitHub Actions Larger Runners: 4-core Linux is $0.016/min (~$0.96/hour); ~$324 - $432/year at expected build volume",
-        "GitHub Actions Larger Runner 4-core (Pay-As-You-Go)",
-        "Upstream hardcodes 4-core runner label or variable to prevent Gradle heap exhaustion.",
-        category,
+        "Permissible (Commercial cloud compute)",
+        "GitHub Larger Runners: 4-core Linux ($0.016/minute = ~$0.96/hour)",
+        "GitHub Actions Larger Runner - 4-core Linux ($0.016/min = ~$0.96/hr)",
+        "Upstream uses larger runners to avoid memory exhaustion during parallel multi-module Gradle compilation.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Organization-level concurrency limits based on paid runner pool size.",
-        "4 vCPU, 16 GB RAM; billable per minute at $0.016/min.",
-        "None (Requires organization billing / credit card on GitHub)",
-        "Conditional; requires paid organization account with billing attached ($324-$432/yr).",
-        "Conditional; requires allocating dedicated cloud runner budget.",
-        "Yes (If running upstream workflow with larger runner labels)",
-        "Upstream Spring Boot compilation consumes >5 GB heap; 4-core runner ensures stable parallel Gradle worker threads.",
-        "Blocked (Fails to allocate without paid billing)",
-        "No (Can be replaced with standard runner + JVM memory bounds)",
-        "No as authored; workflow crashes or hangs in queued state on standard personal forks lacking larger runner quota.",
+        "Concurrency determined by GitHub Enterprise organization spending limits.",
+        "Metered per-minute consumption; subject to enterprise spending budget.",
+        "None (Runner group IAM authentication managed via GitHub organization)",
+        "No; requires dedicated cloud compute budget and commercial billing setup.",
+        "No; unnecessary expense for open-source fork when standard runners suffice.",
+        "No (Can be discarded / replaced with free standard runner)",
+        "Ensures Gradle builds with 50+ submodules compile rapidly without exceeding default runner heap limits.",
+        "Inaccessible (Custom runner label ubuntu22-2-8 does not exist in standard forks)",
+        "No (Can be discarded / replaced with ubuntu-latest)",
+        "No; jobs fail with 'runner image not found' unless run on standard ubuntu-latest or paid larger runner is provisioned.",
         "https://docs.github.com/en/actions/using-github-hosted-runners/using-larger-runners/about-larger-runners",
         "https://github.com/pricing",
-        "https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions#per-minute-rates-for-larger-runners",
-        "No; requires commercial paid runner subscription which breaks out-of-the-box open-source fork builds.",
-        "Hardcoded runner label fails on free GitHub forks without active payment method and runner group configuration.",
-        "Standard hosted runner (ubuntu-latest) with tuned Gradle daemon heap (-Xmx4g), Linux swapfile, Self-hosted runner",
-        "GitHub Actions Standard Runner (ubuntu-latest) with tuned JVM flags",
-        "100% free ($0/yr), executes on all standard GitHub accounts without billing, 2 vCPU / 7 GB RAM is sufficient with proper heap bounds.",
+        "https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions",
+        "No; proprietary runner label fails on forks without paid enterprise larger runner pool.",
+        "Costs $0.016/minute and requires enterprise billing configuration.",
+        "Standard GitHub-hosted runner (ubuntu-latest) with tuned heap (-Xmx4g), Self-hosted Kubernetes runner",
+        "GitHub Actions Standard Runner (ubuntu-latest with Heap Bounds)",
+        "$0 cost, standard ephemeral Linux VM with free disk cleanup action and tuned Gradle daemon memory allocation.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_larger_runner_4core_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_larger_runner_4core_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "GitHub Actions Standard Runner (ubuntu-latest with Heap Bounds)",
-        "ubuntu-latest (2 vCPU, 7 GB RAM, 14 GB SSD)",
-        "Executes build and tests using free standard GitHub-hosted runner with tuned JVM heap limits (-Xmx4g) and swap.",
+        "Infra",
+        "ubuntu-latest (2 vCPU, 7 GB RAM, -Xmx4g / -Dorg.gradle.jvmargs tuned)",
+        "Execute build and test stages on zero-cost standard GitHub-hosted runners with optimized heap and disk cleanup.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Replaces billable larger runner with free standard runner, configuring Gradle memory bounds to prevent OOM errors.",
-        "2 vCPU, 7 GB RAM; free for public repositories.",
+        "Eliminates per-minute cloud compute expenses while successfully completing compilation within standard memory constraints.",
+        "20 concurrent jobs on free tier, 6-hour execution limit.",
         "Free",
         "No",
         "GitHub Terms of Service",
@@ -174,93 +185,95 @@ def make_larger_runner_4core_alt(orig_tool, wf_name, wf_yml, category, evidence)
         "Local-only (Ephemeral Microsoft Azure VM)",
         "None",
         "Permissible",
-        "Free ($0.00)",
+        "Free unlimited runner minutes for public repositories",
         "GitHub Actions Standard Free Tier ($0.00)",
-        "Eliminates $324-$432/year runner expenditure while guaranteeing 100% workflow execution on any fork.",
-        category,
+        "Public open-source repository receives unlimited free standard runner minutes.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Standard GitHub public repo concurrency (20 concurrent jobs).",
-        "2 vCPU, 7 GB RAM limit per runner.",
-        "None",
-        "Yes; 100% free and accessible to all 5 team members on standard GitHub accounts.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Upstream used larger runners for speed, but standard runners handle compilation reliably when memory bounds are tuned.",
+        "Unlimited public repository concurrency.",
+        "20 concurrent jobs per user/org.",
+        "None (Standard GitHub environment)",
+        "Yes; provides ample build capacity for 5 developers at zero cost.",
+        "Yes; 100% free compute allocation for public forks.",
+        "No ($0.00)",
+        "Enables open-source contributors and fork maintainers to build without incurring cloud bills.",
         "Accessible",
         "Yes",
-        "Yes; executes cleanly on standard free GitHub infrastructure.",
+        "Yes; fully operational out of the box with zero financial or administrative hurdles.",
         "https://github.com/features/actions",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; zero financial barrier to fork maintainers and community contributors.",
+        "https://github.com/pricing",
+        "https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions",
+        "Yes; perfectly suited for open-source model releases.",
         "N/A (Fully suitable for open-source model)",
-        "Self-hosted runner (VM / K8s), GitHub Larger Runner (Pay-as-you-go)",
-        "GitHub Actions Standard Runner (ubuntu-latest)",
-        "$0 annual cost, zero cloud VM management, universally accessible to all open-source developers.",
+        "Self-hosted runner, Cloud VM runner",
+        "GitHub Actions Standard Runner (ubuntu-latest with Heap Bounds)",
+        "100% free ($0), requires zero cloud infrastructure maintenance, clean ephemeral environment for every run.",
         orig_tool,
-        "Replaces billable larger runner ($324-$432/yr) with zero-cost standard hosted runner.",
+        "None; seamlessly replaces paid larger runner by tuning Gradle memory settings.",
         evidence
     ]
 
-def make_larger_runner_8core(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_larger_runner_8core(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "GitHub Actions Larger Runner (8-core)",
-        "ubuntu22-4-16 (8 vCPU, 32 GB RAM, 300 GB SSD)",
+        "Infra",
+        "ubuntu22-4-16 (8 vCPU, 32 GB RAM) / vars.UBUNTU_LARGE",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Provides massive memory (32 GB RAM) and 8 vCPUs for parallel test execution across all Spring Boot modules.",
-        "Requires paid GitHub Team or Enterprise organization with metered billing enabled.",
+        "Heavy compute instance utilized for comprehensive multi-project test execution.",
+        "Metered per-minute consumption billed to GitHub Enterprise account.",
         "Paid",
-        "Yes (Hardcoded label runs-on: 'ubuntu22-4-16' fails on standard forks without dedicated runner pool)",
+        "Yes (Custom runner label ubuntu22-4-16 is private to Broadcom's enterprise organization)",
         "GitHub Terms of Service",
         "Terms of Service",
         "None / Permissive",
         "Permitted",
-        "Local-only (Ephemeral Microsoft Azure VM)",
+        "Local-only (Ephemeral cloud VM)",
         "None",
-        "Permissible (Commercial runner service)",
-        "GitHub Actions Larger Runners: 8-core Linux is $0.032/min (~$1.92/hour); ~$346 - $800/year at test execution volume",
-        "GitHub Actions Larger Runner 8-core (Pay-As-You-Go)",
-        "Upstream hardcodes 8-core label to execute heavy test matrix without memory thrashing.",
-        category,
+        "Permissible (Commercial cloud compute)",
+        "GitHub Larger Runners: 8-core Linux ($0.032/minute = ~$1.92/hour)",
+        "GitHub Actions Larger Runner - 8-core Linux ($0.032/min = ~$1.92/hr)",
+        "Upstream executes release train regression suites requiring significant CPU parallelism and memory.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Organization-level pool concurrency limits.",
-        "8 vCPU, 32 GB RAM; billable per minute at $0.032/min.",
-        "None (Requires organization billing / credit card on GitHub)",
-        "Conditional; requires paid organization account with billing attached ($346/yr).",
-        "Conditional; requires dedicated cloud runner budget.",
-        "Yes (If running upstream release-train-test.yml with 8-core runner)",
-        "Prevents heap exhaustion during multi-project Gradle test tasks and Antora documentation rendering.",
-        "Blocked (Fails to allocate without paid billing)",
-        "No (Can be replaced with standard runner + test matrix sharding)",
-        "No as authored; workflow immediately aborts or queues indefinitely on unpaid GitHub forks.",
+        "Enterprise organization concurrency pool.",
+        "Per-minute billing metered against organization credit balance.",
+        "None (Managed via GitHub organization runner policies)",
+        "No; high operational cost ($1.92/hr) inappropriate for 5-member open-source maintainer team.",
+        "No; budget should prioritize open development rather than expensive cloud compute.",
+        "No (Can be discarded / replaced with standard runner)",
+        "Accelerates end-to-end integration test execution across multiple parallel worker threads.",
+        "Inaccessible (Custom runner label ubuntu22-4-16 missing in forks)",
+        "No (Can be discarded / replaced with standard runner)",
+        "No; fails immediately on fork execution due to nonexistent runner pool.",
         "https://docs.github.com/en/actions/using-github-hosted-runners/using-larger-runners/about-larger-runners",
         "https://github.com/pricing",
-        "https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions#per-minute-rates-for-larger-runners",
-        "No; proprietary hardcoded runner label requires paid enterprise subscription.",
-        "Fails on free GitHub forks due to unresolvable runner label ubuntu22-4-16.",
-        "Standard hosted runner (ubuntu-latest) with test sharding, Self-hosted 8-core VM, Test matrix pruning",
-        "Standard Hosted Runner (ubuntu-latest) with Test Sharding & Matrix Pruning",
-        "Eliminates $346/yr runner cost while executing tests in parallel across free standard runners.",
+        "https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions",
+        "No; runner label not available on standard public repository forks.",
+        "Costs $0.032/minute and requires GitHub Enterprise billing agreement.",
+        "Standard GitHub-hosted runner (ubuntu-latest) with test sharding, Self-hosted bare metal runner",
+        "Standard Hosted Runner (ubuntu-latest) with Test Sharding",
+        "$0 cost, leverages parallel GitHub Actions matrix jobs to divide test suite without paid runner seats.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_larger_runner_8core_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_larger_runner_8core_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "Standard Hosted Runner (ubuntu-latest) with Test Sharding",
-        "ubuntu-latest (2 vCPU, 7 GB RAM, 14 GB SSD)",
-        "Executes release integration tests on free standard runners using test sharding and pruned test matrix.",
+        "Infra",
+        "ubuntu-latest (2 vCPU, 7 GB RAM with parallel job matrix sharding)",
+        "Execute test suites divided across parallel matrix workers on free standard hosted runners.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Splits heavy test suites into parallel standard runner jobs, eliminating $346/year billable runner cost.",
-        "2 vCPU, 7 GB RAM; free for public repositories.",
+        "Achieves fast test execution times by running 4 parallel free runners rather than 1 expensive 8-core runner.",
+        "20 concurrent jobs on free tier, 6-hour execution limit.",
         "Free",
         "No",
         "GitHub Terms of Service",
@@ -270,87 +283,89 @@ def make_larger_runner_8core_alt(orig_tool, wf_name, wf_yml, category, evidence)
         "Local-only (Ephemeral Microsoft Azure VM)",
         "None",
         "Permissible",
-        "Free ($0.00)",
+        "Free unlimited runner minutes for public repositories",
         "GitHub Actions Standard Free Tier ($0.00)",
-        "Zero-cost compute execution using standard GitHub-hosted runners.",
-        category,
+        "Free parallel compute provided to open-source GitHub projects.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "20 concurrent jobs on free public repositories.",
-        "2 vCPU, 7 GB RAM limit per runner.",
-        "None",
-        "Yes; free and accessible for all 5 team members.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Standard runners handle test execution cleanly when sharded or when testing core framework modules.",
+        "Unlimited public repository concurrency.",
+        "20 concurrent jobs per user/org.",
+        "None (Standard GitHub environment)",
+        "Yes; provides complete testing verification capacity without per-minute fees.",
+        "Yes; 100% free parallel matrix execution.",
+        "No ($0.00)",
+        "Provides robust test validation matching enterprise quality without requiring commercial compute infrastructure.",
         "Accessible",
         "Yes",
-        "Yes; executes cleanly on free GitHub Actions infrastructure.",
+        "Yes; executes cleanly on every fork with zero prerequisite configuration.",
         "https://github.com/features/actions",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; fully viable on open-source community forks.",
+        "https://github.com/pricing",
+        "https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions",
+        "Yes; standard architectural approach for high-volume open-source test suites.",
         "N/A (Fully suitable for open-source model)",
-        "Self-hosted runner, Cloud VM, GitHub Larger Runner",
-        "GitHub Actions Standard Runner (ubuntu-latest)",
-        "$0 cost, zero runner maintenance, works on any standard fork out of the box.",
+        "Self-hosted runner, Cloud VM runner",
+        "Standard Hosted Runner (ubuntu-latest) with Test Sharding",
+        "100% free ($0), leverages native GitHub Actions matrix parallelization, isolates test failures per module.",
         orig_tool,
-        "Replaces paid 8-core runner ($346/yr) with zero-cost sharded standard runners.",
+        "None; provides equal test coverage and verification depth without cloud billing.",
         evidence
     ]
 
-def make_gradle(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_gradle(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "Gradle",
-        "Gradle Wrapper v8.12+ (OpenJDK 25)",
+        "Tool",
+        "Gradle 8.12+ (Wrapper) with Java 25 / Liberica JDK",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Official build automation tool for Spring Boot multi-module project compilation, dependency resolution, and packaging.",
-        "None (Local command-line tool executed within runner).",
+        "Primary open-source build automation system and dependency manager for the Spring Boot project.",
+        "No usage limits; wrapper executes locally within runner environment.",
         "Free",
         "No",
-        "Apache-2.0",
+        "Apache License 2.0",
         "Apache-2.0",
         "None / Permissive",
         "Permitted",
-        "Local-only (Runs on runner; build scans disabled unless key provided)",
-        "Standard Apache-2.0 notice",
+        "Local-only (Executes locally on runner)",
+        "Standard notice",
         "Permissible",
-        "Free Open Source ($0.00)",
-        "Gradle Build Tool (Open Source)",
-        "De facto standard build system for the Spring ecosystem.",
-        category,
+        "Open Source Software ($0.00)",
+        "Apache-2.0 Open Source ($0.00)",
+        "Standard open-source build tool bundled directly within repository via gradlew wrapper.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
         "Unlimited local executions.",
-        "Local runner CPU and RAM constraints.",
-        "None (Invoked via ./gradlew wrapper)",
-        "Yes; 100% open-source Apache-2.0 license allows unrestricted commercial and internal development.",
-        "Yes; $0 cost for entire team.",
+        "Limited only by runner host CPU and RAM.",
+        "None (Local command execution)",
+        "Yes; Apache-2.0 license permits unrestricted commercial and private use by maintainers.",
+        "Yes; 100% free open-source software.",
         "No",
-        "Primary build tool defining project dependencies, compilation tasks, test execution, and publication.",
+        "Builds, compiles, tests, packages, and verifies all Spring Boot jars, starters, and documentation.",
         "Accessible",
         "Yes",
-        "Yes; core build system of Spring Boot, fully open-source and functional without proprietary plugins.",
+        "Yes; fully self-contained within repository through checked-in gradle-wrapper.jar.",
         "https://gradle.org",
-        "https://gradle.org",
-        "https://gradle.org",
-        "Yes; standard open-source build tool used across the entire Java industry.",
+        "N/A (Free Open Source Software)",
+        "https://gradle.org/releases/",
+        "Yes; 100% free and open-source Apache 2.0 software.",
         "N/A (Fully suitable for open-source model)",
-        "Apache Maven (requires rewriting entire build logic)",
-        "Gradle Build Tool (Gradle Wrapper v8.12+)",
-        "Native project build system, zero migration cost, 100% open-source.",
+        "Apache Maven, Bazel",
+        "Gradle 8.12+ Wrapper (Retained Native)",
+        "Core build definition of Spring Boot is authored in Gradle; retaining it guarantees 100% build compatibility.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_develocity(wf_name, wf_yml, category, purpose, evidence, ml_issue, secret_var):
+def make_develocity(wf_name, wf_yml, stage, purpose, evidence, ml_issue, secret_var):
     return [
         "Develocity",
+        "Tool",
         "Develocity 2024.1+ / ge.spring.io",
         purpose,
         "Upstream Original Tool",
@@ -358,7 +373,7 @@ def make_develocity(wf_name, wf_yml, category, purpose, evidence, ml_issue, secr
         "Accelerates builds with remote distributed build cache, test distribution, flaky test detection, and cloud build scans.",
         "Requires active commercial subscription and valid server access key.",
         "Paid",
-        "Yes (Access key DEVELOCITY_ACCESS_KEY is private to Spring team; build scan publishing fails without key)",
+        "Yes (Access key DEVELOCITY_ACCESS_KEY is private to Spring team; optional key for build scans)",
         "Commercial SaaS EULA",
         "Commercial SaaS EULA",
         "None (Cloud SaaS)",
@@ -367,471 +382,481 @@ def make_develocity(wf_name, wf_yml, category, purpose, evidence, ml_issue, secr
         "None",
         "Restricted (Requires commercial license from Gradle Inc.)",
         "Commercial annual subscription based on active committer seats + dedicated server hosting (~$25,000 - $50,000+/year)",
-        "Gradle Develocity Enterprise (Quote Required)",
+        "Gradle Develocity Enterprise (Quote Required for Enterprise Remote Cache)",
         "Upstream Spring engineering uses ge.spring.io to optimize CI build times across the global contributor base.",
-        category,
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Per-committer seat license model.",
         "Server-enforced concurrency and storage limits.",
+        "Access restricted by server authentication token.",
         secret_var,
         "No; proprietary commercial software requiring expensive enterprise quote ($25K-$50K/yr).",
         "No; commercially unviable for 5-member team on an open-source fork.",
-        "Yes (Vendor Quote Required if retaining Develocity server connectivity)",
+        "No (Optional; builds succeed without it using local Gradle caching; Quote Required only if enterprise remote cache is mandated)",
         "Dramatically reduces rebuild times by sharing compilation caches across all CI jobs and maintainer machines.",
         "Inaccessible (Secret missing in fork)",
         "No (Can be discarded / replaced with free local cache)",
-        "No; private secret is absent in forks, resulting in missing build scans and cache misses.",
+        "No; private secret is absent in forks, resulting in missing build scans; however, build compiles cleanly without it.",
         "https://gradle.com/develocity",
         "https://gradle.com/develocity/contact/",
         "https://gradle.com/pricing/",
-        "No; proprietary commercial subscription creates vendor lock-in and transmits internal build telemetry to external SaaS.",
-        "Requires expensive annual contract ($25K-$50K/yr) and private access key inaccessible to fork maintainers.",
-        "Standard Gradle local build cache, GitHub Actions Cache (actions/cache / gradle/actions/setup-gradle), BuildBuddy OSS",
-        "Gradle Local Build Cache & GitHub Actions Cache (gradle/actions/setup-gradle@v6.4.0)",
-        "100% free ($0/yr), zero external telemetry exfiltration, caches dependencies and outputs reliably in GitHub Actions.",
+        "No; proprietary commercial telemetry service requiring enterprise contracts.",
+        "Requires active commercial contract ($25,000+) and transmits internal build metadata to external SaaS.",
+        "Gradle Local Cache, GitHub Actions Cache (actions/cache via gradle/actions/setup-gradle), Public Scans (scans.gradle.com)",
+        "Gradle Local Cache & GitHub Actions Cache (setup-gradle)",
+        "$0 cost, keeps all build telemetry inside GitHub, fully functional without external SaaS dependencies.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_develocity_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_develocity_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "Gradle Local Cache & GitHub Actions Cache (setup-gradle)",
-        "gradle/actions/setup-gradle@v6.4.0 (cache-provider: basic)",
-        "Provides fast build caching using standard Gradle local build cache and native GitHub Actions cache storage.",
+        "Tool",
+        "gradle/actions/setup-gradle v4+ with local build cache enabled",
+        "Provide zero-cost build caching and dependency caching using GitHub Actions native storage.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Eliminates dependency on commercial Develocity server while preserving fast CI incremental builds and dependency caching.",
-        "10 GB default GitHub Actions cache quota per repository.",
+        "Accelerates Gradle builds without transmitting code telemetry or incurring commercial subscription costs.",
+        "10 GB cache storage per repository included free with GitHub Actions.",
         "Free",
         "No",
-        "Apache-2.0",
+        "Apache License 2.0 / GitHub Terms of Service",
         "Apache-2.0",
         "None / Permissive",
         "Permitted",
-        "Local-only (Cache archives stored securely within GitHub Actions storage; zero external telemetry)",
-        "Standard Apache-2.0 notice",
+        "Local-only (Cache bundles stored securely in repository's native GitHub Actions storage)",
+        "Standard notice",
         "Permissible",
-        "Free ($0.00)",
-        "Free Open Source ($0.00)",
-        "Replaces $25,000-$50,000/year commercial SaaS with free, built-in GitHub Actions caching.",
-        category,
+        "Included Free with GitHub Actions (10 GB free cache storage per repo)",
+        "GitHub Actions Cache Free Tier ($0.00)",
+        "Native GitHub feature with zero configuration or commercial billing requirements.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited within GitHub Actions repository quota.",
-        "10 GB repository cache size limit.",
-        "None (Zero secrets required)",
-        "Yes; fully open-source Apache-2.0 action with unlimited team usage.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Standard Gradle build cache provides ~80% of Develocity speedup for single-repo forks without external server costs.",
+        "Unlimited users on repository.",
+        "10 GB cache quota per repository, automatic LRU eviction.",
+        "None (Native GITHUB_TOKEN integration)",
+        "Yes; ample cache capacity (10 GB) for 5 developers building Spring Boot modules.",
+        "Yes; 100% free with no per-user fees.",
+        "No ($0.00)",
+        "Ensures fast recompilation and dependency resolution without paying for commercial SaaS platforms.",
         "Accessible",
         "Yes",
-        "Yes; guarantees 100% reliable local caching on any fork.",
-        "https://github.com/gradle/actions/tree/main/setup-gradle",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; completely open-source, vendor-neutral, and requires zero external credentials.",
+        "Yes; fully supported across all GitHub runners and local developer machines.",
+        "https://github.com/gradle/actions/blob/main/docs/setup-gradle.md",
+        "https://github.com/pricing",
+        "https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows",
+        "Yes; standard recommended best practice for open-source Gradle projects on GitHub.",
         "N/A (Fully suitable for open-source model)",
-        "actions/cache@v4, Local ~/.gradle directory caching",
-        "gradle/actions/setup-gradle@v6.4.0",
-        "Official Gradle GitHub Action, automated dependency and wrapper caching, zero configuration needed.",
+        "Self-hosted MinIO cache, Local directory cache",
+        "Gradle Local Cache & GitHub Actions Cache (setup-gradle)",
+        "100% free ($0), built-in, zero maintenance, provides ~80% of Develocity cache speedup without cost.",
         orig_tool,
-        "Replaces paid Develocity ($25K-$50K/yr) with zero-cost GitHub Actions cache.",
+        "None; seamlessly replaces proprietary Develocity cache at zero cost.",
         evidence
     ]
 
-def make_spring_enterprise(wf_name, wf_yml, category, purpose, evidence, ml_issue, secret_var):
+def make_spring_enterprise(wf_name, wf_yml, stage, purpose, evidence, ml_issue, secret_var):
     return [
         "Spring Enterprise",
-        "Broadcom VMware Tanzu Spring Enterprise Subscription",
+        "Tool",
+        "Spring Commercial Subscription / spring-enterprise-maven-dev-local",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Provides commercial enterprise support, extended maintenance releases, proprietary CVE backports, and enterprise repositories.",
-        "Requires active enterprise contract with Broadcom VMware Tanzu.",
+        "Access to commercial VMware Tanzu Spring Enterprise repository containing proprietary enterprise starter patches.",
+        "Access restricted to paying enterprise customers with authenticated artifactory credentials.",
         "Paid",
-        "Yes (Requires active Broadcom Tanzu commercial contract; commercial Maven repos require private credentials)",
+        "Yes (Commercial repository requires paid subscription credentials; spring-enterprise-maven-dev-local 401 Unauthorized)",
         "Commercial SaaS EULA",
         "Commercial SaaS EULA",
-        "Restricted (Proprietary Broadcom commercial distribution terms)",
-        "Restricted (Proprietary enterprise binaries cannot be redistributed commercially without Broadcom agreement)",
-        "High (Builds connect to proprietary Tanzu Maven repos; commercial telemetry enabled)",
+        "Restricted (Proprietary commercial binaries)",
+        "Restricted (Commercial redistribution strictly prohibited by VMware Tanzu EULA)",
+        "Local-only (Authenticated artifact downloads)",
         "None",
-        "Restricted (Commercial enterprise assets cannot be redistributed in public fork releases)",
-        "Annual enterprise core-based subscription (~$50,000 - $200,000+/year based on managed CPU cores)",
-        "Broadcom Tanzu Spring Enterprise Subscription (Quote Required)",
-        "Upstream toggles vars.COMMERCIAL to true to produce commercial binaries for paying VMware Tanzu customers.",
-        category,
+        "Restricted (Prohibited for open-source release; violates commercial license to redistribute)",
+        "VMware Tanzu Spring Commercial Subscription (Quote Required per core/developer; ~$10,000 - $100,000+/year)",
+        "VMware Tanzu Spring Enterprise Subscription (Quote Required)",
+        "Upstream Spring Boot maintains commercial support tracks for enterprise customers alongside open-source releases.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Core-based enterprise licensing.",
-        "Restricted to licensed organizations.",
+        "Per-core / per-developer enterprise seat limits.",
+        "Commercial repository access credentials tied to contract.",
         secret_var,
-        "No; requires enterprise master services agreement with Broadcom Inc. ($50K-$200K/yr).",
-        "No; commercially unviable for 5-member team maintaining an open-source fork.",
-        "Yes (Vendor Quote Required if commercial Tanzu support and repositories are mandated)",
-        "Enables dual-track release engineering: free OSS builds vs commercial Tanzu enterprise distribution.",
-        "Inaccessible (Requires Broadcom Tanzu contract)",
-        "No (Can be discarded; fork maintains standard open-source releases)",
-        "No; commercial mode fails on forks lacking Broadcom repository credentials and commercial tokens.",
+        "No; proprietary commercial software requiring expensive enterprise quote ($10K+).",
+        "No; commercial license restricts redistribution and is incompatible with Apache 2.0 open-source release.",
+        "No (Optional; toggled by vars.COMMERCIAL; Apache-2.0 builds bypass it completely at $0)",
+        "Allows VMware/Broadcom to distribute enterprise-hardened patches and extended support binaries.",
+        "Inaccessible (Commercial credentials missing in fork)",
+        "No (Can be discarded for community OSS releases)",
+        "No; workflow aborts when commercial repository credentials fail authentication if commercial flag is enabled.",
         "https://tanzu.vmware.com/spring-enterprise",
+        "https://tanzu.vmware.com/contact",
         "https://tanzu.vmware.com/spring-enterprise",
-        "https://tanzu.vmware.com/pricing",
-        "No; commercial proprietary distribution model conflicts with open-source fork permissible release requirements.",
-        "Proprietary subscription ($50K-$200K/yr) with non-redistributable commercial binaries.",
-        "Community Open Source Release Model, Customer-maintained patch stream, AlmaLinux/Rocky-style rebuilds",
-        "Community Open Source Release Model (Standard Apache-2.0 Spring Boot)",
-        "100% open-source Apache-2.0, $0 license cost, full freedom to patch, build, and distribute customer releases.",
+        "No; proprietary closed-source binaries cannot be redistributed in an open-source model release.",
+        "Commercial EULA strictly prohibits redistribution; requires commercial payment and enterprise contract.",
+        "Community Open Source Apache 2.0 Release Model, Maven Central dependencies, Open-source CVE backports",
+        "Community Open Source Release Model & Public Patch Stream",
+        "100% compliant with Apache License 2.0, permits free public distribution, zero license liability.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_spring_enterprise_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_spring_enterprise_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "Community Open Source Release Model & Public Patch Stream",
-        "Standard Apache-2.0 Spring Boot Framework",
-        "Builds and publishes 100% open-source Spring Boot releases under standard Apache-2.0 terms without commercial lock-in.",
+        "Tool",
+        "Apache License 2.0 Pure Community Open Source Distribution",
+        "Build and release pure open-source Spring Boot binaries under the Apache License 2.0 without commercial dependencies.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Eliminates proprietary Broadcom enterprise dependency, maintaining a clean open-source fork with full redistribution rights.",
-        "None (Standard open-source model).",
+        "Guarantees 100% license freedom and full redistribution rights without contractual restrictions.",
+        "Unlimited distribution under Apache License 2.0.",
         "Free",
         "No",
-        "Apache-2.0",
+        "Apache License 2.0",
         "Apache-2.0",
         "None / Permissive",
-        "Permitted (Full commercial redistribution rights under Apache-2.0)",
-        "Local-only (Zero external commercial telemetry)",
-        "Standard Apache-2.0 notice",
+        "Permitted",
+        "Local-only (Standard open-source artifact distribution)",
+        "Standard notice",
         "Permissible",
-        "Free Open Source ($0.00)",
-        "Free Open Source ($0.00)",
-        "Saves $50,000-$200,000/year while granting legal certainty and full freedom to distribute fork binaries.",
-        category,
+        "Free Open Source Software ($0.00)",
+        "Apache-2.0 Open Source Model ($0.00)",
+        "Official open-source governance model of the Spring Framework community.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited.",
-        "Unlimited.",
-        "None (vars.COMMERCIAL set to false or omitted)",
-        "Yes; standard Apache-2.0 license grants full rights to 5-member team and downstream customers.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Fork operates on standard open-source principles; customer receives tested, verified community patches.",
+        "Unlimited users, developers, and consumers.",
+        "No usage or concurrency restrictions.",
+        "None (Open-source codebase)",
+        "Yes; Apache-2.0 grants unrestricted rights to 5-member team and external users.",
+        "Yes; zero subscription or licensing fees.",
+        "No ($0.00)",
+        "Ensures long-term legal safety, zero vendor lock-in, and pure community distribution.",
         "Accessible",
         "Yes",
-        "Yes; guarantees 100% permissible distribution of fork release artifacts.",
-        "https://github.com/spring-projects/spring-boot",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; the natural open-source model intended for community forks.",
+        "Yes; 100% legal and permissible for public open-source releases.",
+        "https://spring.io/projects/spring-boot",
+        "N/A (Open Source)",
+        "https://github.com/spring-projects/spring-boot/blob/main/LICENSE.txt",
+        "Yes; standard Apache 2.0 release model fully approved for enterprise open-source forks.",
         "N/A (Fully suitable for open-source model)",
-        "Self-managed security backports, Open-source CVE patch stream",
-        "Community Open Source Release Model",
-        "$0 cost, 100% legal compliance under Apache-2.0, zero external vendor contract dependencies.",
+        "Commercial Tanzu support, Red Hat build of Quarkus",
+        "Community Open Source Release Model & Public Patch Stream",
+        "100% free ($0), completely eliminates commercial licensing risks, fully permissible for public redistribution.",
         orig_tool,
-        "Replaces proprietary Broadcom Tanzu ($50K-$200K/yr) with standard open-source Apache-2.0 release model.",
+        "None; cleanly eliminates commercial proprietary repository dependencies.",
         evidence
     ]
 
-def make_jfrog_artifactory(wf_name, wf_yml, category, purpose, evidence, ml_issue, secret_var):
+def make_jfrog_artifactory(wf_name, wf_yml, stage, purpose, evidence, ml_issue, secret_var):
     return [
         "JFrog Artifactory",
-        "repo.spring.io (JFrog Artifactory Cloud Enterprise)",
+        "Infra",
+        "JFrog Artifactory SaaS (repo.spring.io)",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Central Maven repository server used by Spring team to host snapshots (libs-snapshot-local) and stage releases.",
-        "Requires commercial SaaS subscription and repository write credentials.",
+        "Central enterprise binary repository manager hosting snapshot and milestone Maven artifacts for Spring projects.",
+        "Requires commercial SaaS subscription or enterprise server license; subject to storage and transfer quotas.",
         "Paid",
-        "Yes (Write credentials ARTIFACTORY_USERNAME / ARTIFACTORY_PASSWORD are private to Spring project)",
+        "Yes (repo.spring.io/libs-snapshot-local and release repos require Broadcom employee credentials)",
         "Commercial SaaS EULA",
         "Commercial SaaS EULA",
-        "None (Distribution registry)",
-        "Permitted (Registry service)",
-        "Cloud SaaS logs (Artifact metadata, build info, and downloader IP logs stored in JFrog cloud)",
+        "None (Binary storage infrastructure)",
+        "Restricted (Commercial SaaS terms)",
+        "Local-only (HTTPS artifact deployment)",
         "None",
-        "Permissible (Commercial registry service)",
-        "JFrog Cloud Pro: ~$98 - $150/month ($1,176 - $1,800/year); JFrog Enterprise X: ~$500 - $3,000/month ($6,000 - $36,000/year)",
-        "JFrog Artifactory Cloud Pro ($1,800/yr)",
-        "Upstream Spring infrastructure relies on repo.spring.io as its central artifact hub.",
-        category,
+        "Restricted (Commercial repository service)",
+        "JFrog Cloud Pro: ~$98 - $150/month (~$1,200/yr); Enterprise: ~$500 - $3,000+/month (~$6,000 - $36,000+/yr)",
+        "JFrog Cloud Pro / Enterprise SaaS (~$1,200 - $36,000/yr)",
+        "Upstream uses repo.spring.io as their dedicated artifact distribution hub across all Spring projects.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Per-account or usage tier based on storage and data transfer.",
-        "Storage and transfer quotas based on paid tier.",
+        "User seats and storage volume dictated by JFrog subscription tier.",
+        "Transfer bandwidth and concurrent upload thread limits.",
         secret_var,
-        "Conditional; requires purchasing a commercial JFrog Cloud plan ($1,800/yr).",
-        "Conditional; requires dedicated software tooling budget.",
-        "Yes (Purchase Order Required if dedicated Artifactory SaaS is selected)",
-        "Centralizes staging, snapshot hosting, and promotion workflows across the entire Spring ecosystem.",
+        "No; expensive SaaS commitment ($1,200-$36,000/yr) unnecessary when free artifact hosting is available.",
+        "No; prohibitive infrastructure cost for a 5-member open-source team.",
+        "No (Can be replaced with free GitHub Packages / Maven Central)",
+        "Serves as the staging and snapshot registry for dependencies shared across Spring projects during active development.",
         "Inaccessible (Secret missing in fork)",
-        "No (Can be replaced with GitHub Packages or Maven Central)",
-        "No; deploy steps fail immediately due to missing HTTP Basic authentication credentials for repo.spring.io.",
-        "https://jfrog.com/artifactory",
+        "No (Can be discarded / replaced with GitHub Packages or Maven Central)",
+        "No; publishing steps fail with HTTP 401 Unauthorized when repo.spring.io credentials are not provided.",
+        "https://jfrog.com/artifactory/",
         "https://jfrog.com/pricing/",
         "https://jfrog.com/pricing/",
-        "No; proprietary commercial SaaS registry is unnecessary for a standalone fork.",
-        "Costs $1,800+/year and requires managing external repository credentials.",
-        "GitHub Packages (ghcr.io/maven), Sonatype Central Portal (Maven Central), Nexus OSS, Local Maven directory",
-        "GitHub Packages & GitHub Releases",
-        "$0 cost, native GitHub authentication via GITHUB_TOKEN, seamless release hosting for fork consumers.",
+        "No; expensive proprietary SaaS repository with private authentication hurdles.",
+        "Requires ongoing commercial billing ($1,200+) and management of private credentials.",
+        "GitHub Packages (Maven), Maven Central (Sonatype Central Portal / OSSRH), GitHub Releases (ZIP/JAR distribution)",
+        "GitHub Packages / GitHub Releases / Maven Central",
+        "$0 cost, natively integrated into GitHub ecosystem, public Maven distribution standard for open-source Java.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_jfrog_artifactory_alt(orig_tool, wf_name, wf_yml, category, evidence, repo_target):
+def make_jfrog_artifactory_alt(orig_tool, wf_name, wf_yml, stage, evidence, repo_target):
     return [
         "GitHub Packages / GitHub Releases / Maven Central",
-        "GitHub Packages Maven Registry & GitHub Releases",
-        f"Hosts {repo_target} using native GitHub Packages or GitHub Releases at $0 incremental cost.",
+        "Infra",
+        "Maven Central (Sonatype Portal) + GitHub Packages / Releases",
+        f"Host and distribute release and snapshot artifacts to {repo_target} at zero licensing cost.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Replaces proprietary JFrog Artifactory SaaS with free native GitHub artifact hosting and Maven Central publication.",
-        "Public repositories: unlimited storage and data transfer; Private repositories: 500 MB storage free.",
+        "Provides free public artifact hosting directly within GitHub and the global Maven Central ecosystem.",
+        "GitHub Packages: Free storage & bandwidth for public repositories; Maven Central: Unlimited free open-source publishing.",
         "Free",
         "No",
         "GitHub Terms of Service / Apache-2.0",
         "Terms of Service / Apache-2.0",
         "None / Permissive",
         "Permitted",
-        "Low (Standard GitHub registry metadata; zero third-party telemetry)",
-        "None",
+        "Local-only (Standard Maven artifact upload)",
+        "Standard notice",
         "Permissible",
-        "Free ($0.00)",
-        "Free Open Source ($0.00)",
-        "Eliminates $1,800/year JFrog subscription while maintaining fully automated artifact publishing.",
-        category,
+        "Free for public open-source repositories ($0.00)",
+        "Free Public Repository Tier ($0.00)",
+        "Native GitHub feature and global open-source Java repository standard.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited for public repositories.",
-        "Unlimited bandwidth on public GitHub Packages.",
-        "GITHUB_TOKEN (Built-in) or OSSRH credentials for Maven Central",
-        "Yes; completely free and native for all 5 team members.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "GitHub Packages is natively integrated with GitHub Actions and requires zero external credentials.",
+        "Unlimited public consumers.",
+        "Unlimited downloads from Maven Central; GitHub standard package rate limits.",
+        "secrets.GITHUB_TOKEN / Sonatype Central Portal Token",
+        "Yes; permits 5 maintainers to publish and consume packages without seat charges.",
+        "Yes; 100% free of charge for open-source releases.",
+        "No ($0.00)",
+        "Ensures global accessibility for consumers without incurring private binary repository hosting bills.",
         "Accessible",
         "Yes",
-        "Yes; provides clean, accessible artifact distribution for downstream fork consumers.",
-        "https://github.com/features/packages",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; standard modern artifact hosting for open-source GitHub projects.",
+        "Yes; fully operational with standard open-source developer workflows.",
+        "https://central.sonatype.com / https://github.com/features/packages",
+        "https://central.sonatype.com/register",
+        "https://central.sonatype.com",
+        "Yes; the universal standard distribution channel for open-source Java libraries.",
         "N/A (Fully suitable for open-source model)",
-        "Sonatype Nexus OSS (self-hosted), Cloudsmith, GitLab Package Registry",
-        "GitHub Packages & GitHub Releases",
-        "$0 cost, zero maintenance overhead, built-in GITHUB_TOKEN authentication, highly available global CDN.",
+        "Self-hosted Nexus OSS, Cloudsmith Free OSS",
+        "GitHub Packages / GitHub Releases / Maven Central",
+        "100% free ($0), universal developer recognition, no infrastructure to patch or maintain.",
         orig_tool,
-        "Replaces paid JFrog Artifactory ($1,800/yr) with zero-cost GitHub Packages/Releases.",
+        "None; provides complete replacement for private Artifactory repository.",
         evidence
     ]
 
-def make_spring_release_train(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_spring_release_train(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "Spring Release Train",
-        "spring-io/release-train (Multi-Repo Coordination System)",
+        "Infra",
+        "spring-io/release-train (Central Orchestrator)",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Orchestrates synchronized multi-project release train across all Spring ecosystem projects (Framework, Boot, Data, Security, etc.).",
-        "Requires participant membership in Spring I/O release train and write access to spring-io/release-train repo.",
+        "Central multi-repository orchestrator used by Broadcom to synchronize simultaneous releases across 30+ Spring projects.",
+        "Requires synchronized coordination across multiple external GitHub repositories.",
         "Free (Internal to Spring)",
-        "Yes (External private/restricted repository spring-io/release-train; token requires org write permissions)",
+        "No (Public repository spring-io/release-train, but callbacks require private repository access tokens)",
         "Apache-2.0 / Proprietary Orchestrator",
-        "Proprietary / Apache-2.0",
+        "Apache-2.0",
         "None / Permissive",
         "Permitted",
-        "Cloud SaaS logs (Workflow dispatches and issue state updates logged on spring-io/release-train)",
-        "None",
-        "Restricted (Cross-repository orchestration requires Broadcom/Spring organization tokens)",
-        "Included in Spring ecosystem maintainer infrastructure (Not sold commercially)",
-        "Spring Release Train Infrastructure (Inaccessible)",
-        "Upstream uses release train to ensure all 20+ Spring projects release compatible versions simultaneously.",
-        category,
+        "Cloud SaaS logs (Workflow dispatch events across GitHub repositories)",
+        "Standard notice",
+        "Permissible",
+        "Free Open Source Tool ($0.00)",
+        "Community Multi-Repo Orchestrator ($0.00)",
+        "Upstream architectural pattern to synchronize dependencies across the broader Spring portfolio.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Restricted to official Spring portfolio maintainers.",
-        "Synchronous coordinated releases.",
+        "Coordinating maintainers.",
+        "Cross-repo dispatch rate limits.",
         "secrets.RELEASE_TRAIN_PARTICIPANT_GITHUB_TOKEN",
-        "No; cannot be licensed or joined by external organizations.",
-        "No; inaccessible outside official Spring team.",
-        "No (Cannot be purchased)",
-        "Coordinates version alignments, staging repo handoffs, and release readiness across multiple independent repositories.",
-        "Inaccessible (Secret missing and external repo inaccessible)",
-        "No (Can be discarded / replaced with independent release dispatch)",
-        "No; cross-repo dispatch to spring-io/release-train fails immediately due to missing participant token.",
+        "Yes; permissible for 5 maintainers to review orchestrator definitions.",
+        "Yes; zero software license cost.",
+        "No (Internal to upstream Spring portfolio; decoupled in fork)",
+        "Coordinates synchronized dependency versions (Spring Framework, Data, Security, Batch) prior to public GA releases.",
+        "Inaccessible (Secret missing in fork; cross-repo callbacks abort)",
+        "No (Can be discarded / replaced with standalone release workflow)",
+        "No; release train workflows abort with token errors when executed in an isolated fork without external orchestrator.",
         "https://github.com/spring-io/release-train",
-        "N/A (Internal Infrastructure)",
-        "N/A (Internal Infrastructure)",
-        "No; a customer fork releases Spring Boot independently and does not participate in upstream release train dispatches.",
-        "Fails on fork without private token; external repo spring-io/release-train rejects external dispatches.",
-        "Independent standalone release process, GitHub Actions workflow_dispatch trigger, Semantic-release",
-        "Standalone Independent Fork Release Process (workflow_dispatch)",
-        "$0 cost, decouples fork from external ecosystem releases, enables on-demand customer patch releases.",
+        "N/A (Internal Orchestration Tool)",
+        "https://github.com/spring-io/release-train",
+        "No; release train workflows require complex multi-repository infrastructure unnecessary for single-repo fork releases.",
+        "Requires maintaining a secondary coordinator repository and configuring synchronized cross-repo PAT secrets.",
+        "Standalone GitHub Actions workflow_dispatch release trigger, Local Maven release plugin",
+        "Standalone Workflow Dispatch Release Trigger",
+        "$0 cost, self-contained within single repository, zero external dependencies, simple one-click manual release trigger.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_spring_release_train_alt(orig_tool, wf_name, wf_yml, category, evidence, alt_name, alt_desc):
+def make_spring_release_train_alt(orig_tool, wf_name, wf_yml, stage, evidence, alt_name, alt_desc):
     return [
         alt_name,
-        "Native GitHub Actions workflow_dispatch / Manual Release CLI",
+        "Tool",
+        "Native GitHub Actions workflow_dispatch release pipeline",
         alt_desc,
         "Recommended Fork Alternate",
         orig_tool,
-        "Replaces external multi-repo orchestrator with a self-contained, independent release workflow for the fork.",
-        "None (Local fork execution).",
+        "Decouples repository from multi-project release train, allowing independent release cycles on maintainer demand.",
+        "Standard GitHub Actions concurrency limits.",
         "Free",
         "No",
         "MIT / Apache-2.0",
-        "MIT / Apache-2.0",
+        "Apache-2.0",
         "None / Permissive",
         "Permitted",
-        "Local-only (Zero external cross-repo calls)",
+        "Local-only (Executes entirely within fork repository boundary)",
         "None",
         "Permissible",
-        "Free ($0.00)",
-        "Free Open Source ($0.00)",
-        "Enables full independence from upstream VMware/Broadcom release schedule at $0 cost.",
-        category,
+        "Included Free with GitHub Actions ($0.00)",
+        "GitHub Actions Standard Free Tier ($0.00)",
+        "Standard native workflow dispatch mechanism.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited.",
-        "Unlimited.",
-        "None (Standard GITHUB_TOKEN)",
-        "Yes; simple, autonomous release workflow for 5-member team.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Fork releases customer patches on demand without waiting for or coordinating with other Spring portfolio projects.",
+        "Unlimited fork maintainers.",
+        "Standard GitHub job concurrency.",
+        "None (Native GITHUB_TOKEN)",
+        "Yes; provides straightforward release capability for 5 developers.",
+        "Yes; zero cost.",
+        "No ($0.00)",
+        "Allows fork to be released autonomously on its own schedule without waiting for upstream portfolio sync.",
         "Accessible",
         "Yes",
-        "Yes; guarantees 100% reliable release execution within the fork.",
-        "https://github.com/features/actions",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; clean, self-contained open-source release model.",
+        "Yes; fully operational directly from GitHub Actions web UI.",
+        "https://docs.github.com/en/actions/using-workflows/manually-running-a-workflow",
+        "N/A (Native Feature)",
+        "https://github.com/pricing",
+        "Yes; completely self-contained and ideal for independent open-source fork releases.",
         "N/A (Fully suitable for open-source model)",
-        "Automated GitHub Release script, JReleaser, Maven Release Plugin",
-        alt_name,
-        "$0 cost, eliminates external network dependencies, grants full autonomy to fork release engineers.",
+        "Release Please action, JReleaser, Semantic Release",
+        "Standalone Workflow Dispatch Release Trigger",
+        "100% free ($0), zero external dependencies, clear manual control over version increments and tag creation.",
         orig_tool,
-        "Replaces inaccessible external release train with independent fork release process.",
+        "None; safely replaces complex multi-repo release train coordination.",
         evidence
     ]
 
-def make_github_api(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_github_api(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "GitHub API",
-        "GitHub REST / GraphQL API via gh CLI v2.x",
+        "Infra",
+        "GitHub REST API v3 / GraphQL API",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Used by gh CLI steps to query release train state, trigger remote workflows, and watch job execution.",
-        "GitHub API rate limits: 1,000 requests/hour for GITHUB_TOKEN; 5,000 requests/hour for PAT.",
+        "Programmatic interface to query repository metadata, dispatch workflows, create issues, and manage release assets.",
+        "Subject to standard GitHub API rate limits (1,000 req/hr for GITHUB_TOKEN; 5,000 req/hr for authenticated users).",
         "Free",
-        "Yes (Requires write permissions to external repository spring-io/release-train)",
+        "No",
         "GitHub Terms of Service",
         "Terms of Service",
         "None / Permissive",
         "Permitted",
-        "Cloud SaaS logs (API calls logged by GitHub platform)",
+        "Cloud SaaS logs (API requests logged by GitHub infrastructure)",
         "None",
         "Permissible",
-        "Free with GitHub account",
-        "GitHub Standard API (Free)",
-        "Standard CLI mechanism for interacting with GitHub Actions workflows remotely.",
-        category,
+        "Included Free with GitHub Platform ($0.00)",
+        "GitHub Platform Standard API ($0.00)",
+        "Standard platform infrastructure utilized for all automated repository interactions.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Subject to standard GitHub API hourly rate limits.",
-        "1,000 requests/hr per repository GITHUB_TOKEN; 5,000 requests/hr for authenticated PAT.",
-        "secrets.RELEASE_TRAIN_PARTICIPANT_GITHUB_TOKEN",
-        "Yes; standard GitHub API is available to all users.",
-        "Yes; $0 cost for entire team.",
+        "Unlimited users within repository.",
+        "1,000 to 5,000 API requests per hour.",
+        "secrets.RELEASE_TRAIN_PARTICIPANT_GITHUB_TOKEN / secrets.GITHUB_TOKEN",
+        "Yes; rate limits are generous for 5 developers performing CI/CD operations.",
+        "Yes; 100% free platform API.",
         "No",
-        "Automates cross-repository dispatching and run watching via gh run watch.",
-        "Inaccessible (Missing token with write scope to external repo)",
-        "No (Can be discarded alongside release train workflows)",
-        "No; API calls target spring-io/release-train which denies permission to fork tokens.",
-        "https://cli.github.com",
-        "https://github.com/cli/cli",
+        "Enables automated CI/CD steps to communicate status and trigger secondary workflows across repositories.",
+        "Accessible",
+        "Yes",
+        "Yes; native API accessible from all runner environments.",
         "https://docs.github.com/en/rest",
-        "No as configured; hardcoded external repository targets cause API 404/403 errors.",
-        "Targets external spring-io/release-train repo which is read-only or inaccessible to forks.",
-        "Fork-local gh CLI commands, Native GITHUB_TOKEN, Discarding release-train workflow",
+        "N/A (Standard Platform API)",
+        "https://github.com/pricing",
+        "Yes; standard platform capability included with GitHub.",
+        "N/A (Fully suitable for open-source model)",
+        "Local git CLI commands, Webhook integrations",
         "Native GITHUB_TOKEN & Standard GitHub CLI",
-        "Operates strictly within the local fork repository without cross-repo authorization hurdles.",
+        "$0 cost, built into every runner, secure short-lived token automatically rotated per job.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_github_api_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_github_api_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "Native GITHUB_TOKEN & Standard GitHub CLI",
-        "gh CLI v2.x / GitHub Actions Environment",
-        "Executes necessary GitHub API operations locally within the fork using built-in GITHUB_TOKEN.",
+        "Tool",
+        "GitHub CLI (gh) v2.60+ with ephemeral GITHUB_TOKEN",
+        "Perform repository queries and dispatch commands using the pre-installed GitHub CLI with zero credential management.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Replaces cross-repo API calls with safe, local repository automation.",
-        "1,000 requests/hour default repository GITHUB_TOKEN quota.",
+        "Eliminates the requirement for long-lived personal access tokens (PATs) and reduces security exposure.",
+        "1,000 requests per hour per repository.",
         "Free",
         "No",
-        "GitHub Terms of Service",
-        "Terms of Service",
+        "GitHub Terms of Service / MIT (CLI)",
+        "MIT / Terms of Service",
         "None / Permissive",
         "Permitted",
-        "Local-only",
+        "Local-only (CLI runs locally on runner)",
         "None",
         "Permissible",
-        "Free ($0.00)",
-        "Free Open Source ($0.00)",
-        "Zero-cost native platform automation.",
-        category,
+        "Included Free with GitHub Actions ($0.00)",
+        "GitHub Actions Standard Free Tier ($0.00)",
+        "Pre-installed on every GitHub Actions runner.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited.",
-        "Standard GitHub API rate limits.",
-        "GITHUB_TOKEN (Built-in)",
-        "Yes; built-in token works automatically for all team members.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Local API interactions suffice for tagging, creating releases, and uploading assets.",
+        "Unlimited users.",
+        "Standard GitHub Actions execution limits.",
+        "secrets.GITHUB_TOKEN",
+        "Yes; ideal for 5 maintainers with zero credential leakage risk.",
+        "Yes; 100% free of charge.",
+        "No ($0.00)",
+        "Simplifies script authoring and eliminates private PAT secret dependencies in fork pipelines.",
         "Accessible",
         "Yes",
-        "Yes; fully functional within any fork.",
+        "Yes; universally available across all GitHub Actions workflows.",
         "https://cli.github.com",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; standard platform mechanism for open-source repositories.",
+        "N/A (Free Tool)",
+        "https://github.com/cli/cli/releases",
+        "Yes; native and fully supported for open-source models.",
         "N/A (Fully suitable for open-source model)",
-        "Git CLI commands, GitHub REST API",
+        "curl with raw API tokens",
         "Native GITHUB_TOKEN & Standard GitHub CLI",
-        "$0 cost, zero secrets setup, scoped strictly to the fork repository.",
+        "100% free ($0), secure, requires no PAT configuration, natively integrated into GitHub Actions.",
         orig_tool,
-        "Replaces external cross-repo API calls with native fork-local automation.",
+        "None; provides cleaner and more secure GitHub automation.",
         evidence
     ]
 
-def make_broadcom_rvt(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_broadcom_rvt(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "Broadcom RVT upstream",
-        "spring-projects/spring-boot-release-verification (Private RVT Repo)",
+        "Tool",
+        "spring-projects/spring-boot-release-verification (Private RVT Repo v0.0.15)",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
@@ -849,85 +874,87 @@ def make_broadcom_rvt(wf_name, wf_yml, category, purpose, evidence, ml_issue):
         "Included in Broadcom Tanzu commercial agreements (Not sold standalone)",
         "Broadcom RVT Suite (Inaccessible)",
         "Upstream uses RVT as the final quality gate before publishing enterprise Spring Boot releases.",
-        category,
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Restricted to Broadcom engineers.",
         "Private repository access restricted by GitHub organization IAM.",
+        "Access limited to authorized Broadcom release engineers.",
         "secrets.GH_ACTIONS_REPO_TOKEN / secrets.token",
         "No; proprietary closed-source repository that cannot be licensed by outside teams.",
         "No; inaccessible outside Broadcom.",
-        "No (Cannot be purchased standalone)",
+        "No (Cannot be purchased standalone; bundled exclusively in Broadcom Tanzu; can be discarded or replaced with open-source smoke tests)",
         "Validates compatibility with commercial application servers (WebLogic, WebSphere, Tanzu) prior to GA release.",
         "Inaccessible (Private repo 404 on checkout)",
         "No (Can be replaced with open-source smoke tests)",
         "No; actions/checkout fails with HTTP 404/Authentication error when cloning spring-projects/spring-boot-release-verification.",
         "https://github.com/spring-projects/spring-boot-release-verification",
         "N/A (Proprietary Closed Source)",
-        "N/A (Proprietary Closed Source)",
-        "No; closed-source proprietary repository completely unavailable to community forks.",
-        "Private repository cannot be cloned by public forks; blocks workflow with fatal checkout error.",
-        "Customer-owned smoke and integration test suite, Spring Boot Sample Apps, Testcontainers integration suite",
+        "https://tanzu.vmware.com/spring-enterprise",
+        "No; private proprietary repository not accessible to external forks.",
+        "Closed-source proprietary repository returning HTTP 404 on checkout for all forks.",
+        "Customer Acceptance & Smoke Test Suite, Spring Boot Samples verification tests, Dockerized container smoke tests",
         "Customer Acceptance & Smoke Test Suite",
-        "100% open-source, tailored to customer's actual runtime environments, zero proprietary blockers.",
+        "$0 cost, 100% open-source, verifies JAR startup, Actuator health endpoints, and core starters on standard JVMs.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_broadcom_rvt_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_broadcom_rvt_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "Customer Acceptance & Smoke Test Suite",
-        "Spring Boot Starter Smoke Tests & Sample Applications",
-        "Validates staged artifacts against realistic open-source sample applications and embedded containers.",
+        "Tool",
+        "In-Repo Smoke & Actuator Health Verification Suite",
+        "Execute local open-source integration smoke tests verifying JAR packaging, context startup, and actuator health.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Replaces proprietary closed-source Broadcom test repository with a transparent, customer-owned smoke test suite.",
-        "None (Local runner execution).",
+        "Provides robust release confidence by verifying real runtime packaging without proprietary test suites.",
+        "Standard runner limits.",
         "Free",
         "No",
-        "Apache-2.0",
+        "Apache License 2.0",
         "Apache-2.0",
         "None / Permissive",
         "Permitted",
-        "Local-only",
-        "Standard Apache-2.0 notice",
+        "Local-only (Executes locally on runner)",
+        "Standard notice",
         "Permissible",
-        "Free Open Source ($0.00)",
-        "Free Open Source ($0.00)",
-        "Eliminates dependency on inaccessible private repository while providing comprehensive verification.",
-        category,
+        "Free Open Source Software ($0.00)",
+        "Apache-2.0 Open Source Model ($0.00)",
+        "Directly testable using existing repository code and test fixtures.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited.",
-        "Unlimited.",
-        "None",
-        "Yes; fully open-source and maintainable by 5-member team.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Customer smoke tests verify the specific starters, databases, and features required for customer deployments.",
+        "Unlimited maintainers.",
+        "Local runner execution limits.",
+        "None (Open-source codebase)",
+        "Yes; fully open to 5 maintainers without license overhead.",
+        "Yes; zero cost.",
+        "No ($0.00)",
+        "Confirms that built binaries package, execute, and respond to HTTP health checks successfully prior to publishing.",
         "Accessible",
         "Yes",
-        "Yes; executes reliably on any fork without external dependencies.",
-        "https://github.com/spring-projects/spring-boot/tree/main/spring-boot-tests",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; fully transparent, open-source verification suite.",
+        "Yes; fully operational and integrated within repository CI.",
+        "https://spring.io/projects/spring-boot",
+        "N/A (Open Source)",
+        "https://github.com/spring-projects/spring-boot",
+        "Yes; standard and recommended testing practice for open-source frameworks.",
         "N/A (Fully suitable for open-source model)",
-        "In-repo spring-boot-smoke-tests, Testcontainers integration suite",
+        "Local Docker Compose smoke tests, Arquillian tests",
         "Customer Acceptance & Smoke Test Suite",
-        "$0 cost, 100% open-source, directly validates actual customer use cases without external blockers.",
+        "100% free ($0), completely self-contained within fork, verifies real application behavior without external dependencies.",
         orig_tool,
-        "Replaces inaccessible proprietary Broadcom RVT repository with transparent customer smoke tests.",
+        "None; provides reliable functional release verification at zero cost.",
         evidence
     ]
 
-def make_google_chat(wf_name, wf_yml, category, purpose, evidence, ml_issue, secret_var):
+def make_google_chat(wf_name, wf_yml, stage, purpose, evidence, ml_issue, secret_var):
     return [
         "Google Chat",
-        "Google Chat Webhook API (Google Workspace)",
+        "Tool",
+        "Google Chat Incoming Webhook API v1 (Google Workspace)",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
@@ -942,19 +969,19 @@ def make_google_chat(wf_name, wf_yml, category, purpose, evidence, ml_issue, sec
         "Cloud SaaS logs (Build metadata, branch names, and run links sent to Google servers)",
         "None",
         "Permissible (Commercial alerting service)",
-        "Google Workspace Business Standard: ~$12/user/month (~$144 - $168/year per user)",
-        "Google Workspace Business ($168/yr)",
+        "Google Workspace: Business Starter ($7/user/mo = $420/yr for 5 users), Business Standard ($12/user/mo = $720/yr for 5 users)",
+        "Google Workspace Business Standard ($720/yr for 5 users) or Business Starter ($420/yr for 5 users); $0 in Fork",
         "Upstream Spring team uses Google Chat as their primary internal developer collaboration platform.",
-        category,
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Per-seat Google Workspace license.",
+        "Google Workspace organization users.",
         "Webhook rate limits enforced by Google Workspace API.",
-        "secrets.GOOGLE_CHAT_WEBHOOK_URL",
-        "Conditional; requires active Google Workspace subscription ($168/yr).",
+        secret_var,
+        "Conditional; requires active Google Workspace subscription ($420-$720/yr for 5 users).",
         "Conditional; requires team chat tooling budget.",
-        "No (Can be replaced with free GitHub native notifications)",
+        "No (Can be discarded / replaced with free GitHub native notifications or Slack/Discord)",
         "Provides immediate developer visibility when scheduled snapshot builds or CI pipelines fail.",
         "Inaccessible (Secret missing in fork)",
         "No (Can be discarded / replaced with native summaries)",
@@ -962,694 +989,709 @@ def make_google_chat(wf_name, wf_yml, category, purpose, evidence, ml_issue, sec
         "https://workspace.google.com/products/chat/",
         "https://workspace.google.com/pricing/",
         "https://workspace.google.com/pricing/",
-        "No; proprietary team webhook creates unnecessary SaaS dependency and fails when secret is omitted.",
-        "Requires paid Google Workspace subscription and private incoming webhook URL.",
-        "GitHub Step Summary ($GITHUB_STEP_SUMMARY), Native GitHub email notifications, Slack free webhook, Microsoft Teams",
-        "GitHub Actions Native Workflow Run Summaries & PR Annotations",
-        "100% free ($0/yr), built directly into GitHub Actions UI, zero third-party data transmission.",
+        "No; requires commercial Google Workspace domain and exposes build telemetry to third-party chat service.",
+        "Requires paid Google Workspace licenses ($420-$720/yr) and configuration of external webhook infrastructure.",
+        "GitHub Actions Job Summaries ($GITHUB_STEP_SUMMARY), GitHub PR Annotations, Slack Incoming Webhooks, Discord Webhooks",
+        "GitHub Actions Native Workflow Run Summaries & Annotations",
+        "$0 cost, native to GitHub Actions UI, visible directly on commits and pull requests without external SaaS.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_google_chat_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_google_chat_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "GitHub Actions Native Workflow Run Summaries & Annotations",
-        "GitHub Step Summary ($GITHUB_STEP_SUMMARY) & Annotations API",
-        "Generates rich markdown run summaries and inline pull request annotations for build and test results.",
+        "Tool",
+        "GitHub Actions $GITHUB_STEP_SUMMARY & PR Check Annotations",
+        "Publish formatted build scan links, test execution metrics, and failure diagnostics directly into GitHub Actions Job Summaries.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Replaces proprietary external chat webhook with free, native, out-of-the-box GitHub Actions summaries.",
-        "None (Local runner execution).",
+        "Eliminates third-party chat dependencies and places failure context directly where developers review code.",
+        "Unlimited usage included with GitHub Actions.",
         "Free",
         "No",
         "GitHub Terms of Service",
         "Terms of Service",
         "None / Permissive",
         "Permitted",
-        "Local-only (Stored in GitHub Actions job logs)",
+        "Local-only (Rendered directly in GitHub Actions web console)",
         "None",
         "Permissible",
-        "Free ($0.00)",
-        "Free Open Source ($0.00)",
-        "Zero-cost native platform notification mechanism.",
-        category,
+        "Included Free with GitHub Actions ($0.00)",
+        "GitHub Actions Standard Free Tier ($0.00)",
+        "Native GitHub feature with zero configuration or commercial billing requirements.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited.",
-        "Unlimited.",
-        "None (GITHUB_TOKEN built-in)",
-        "Yes; accessible to all 5 team members directly in GitHub UI.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Developers view detailed build metrics, test failures, and artifact links directly on the GitHub Actions summary page.",
+        "Unlimited repository maintainers and public viewers.",
+        "Standard GitHub step summary size limit (1 MB per step).",
+        "None (Standard GITHUB_STEP_SUMMARY environment variable)",
+        "Yes; perfectly suited for 5 developers reviewing PR status directly in GitHub.",
+        "Yes; 100% free with no per-user fees.",
+        "No ($0.00)",
+        "Ensures high developer visibility without requiring maintainers to monitor an external chat channel.",
         "Accessible",
         "Yes",
-        "Yes; works seamlessly on all GitHub repositories.",
+        "Yes; fully supported across all GitHub runners and web UI.",
         "https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; standard platform mechanism for open-source repositories.",
+        "N/A (Native Feature)",
+        "https://github.com/pricing",
+        "Yes; the ideal reporting mechanism for open-source repositories.",
         "N/A (Fully suitable for open-source model)",
-        "GitHub Discussions notifications, Free Discord webhook, Free Slack webhook",
+        "Email notifications, Free Slack webhook, Free Discord webhook",
         "GitHub Actions Native Workflow Run Summaries & Annotations",
-        "$0 cost, zero secrets setup, native markdown reporting directly in the GitHub web interface.",
+        "100% free ($0), requires zero webhooks or external tokens, markdown-formatted, permanently attached to workflow run.",
         orig_tool,
-        "Replaces paid Google Chat webhook ($168/yr) with native GitHub Actions markdown summaries.",
+        "None; provides superior contextual debugging directly on the workflow run page.",
         evidence
     ]
 
-def make_docker_hub(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_docker_hub(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "Docker Hub upstream",
-        "Docker Hub Registry (docker.io anonymous pulls)",
+        "Infra",
+        "Docker Hub Registry v2 (Anonymous Public Pulls)",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Pulls 11+ container images for database and message broker integration tests via Testcontainers.",
-        "Anonymous rate limit: 100 pulls per 6 hours per IP address; easily exhausted on shared CI runners.",
+        "Pulls third-party container images (Postgres, Redis, Kafka, MySQL, Neo4j, RabbitMQ) for integration testing.",
+        "Subject to Docker Hub anonymous rate limits (100 pulls per 6 hours per IP address).",
         "Paid / Rate-Limited",
-        "Yes (Anonymous IP pull limits trigger HTTP 429 Too Many Requests failures during concurrent CI runs)",
+        "No (Public registry, but heavily rate-limited for shared GitHub Actions IP pools)",
         "Docker Terms of Service",
-        "Commercial SaaS EULA",
-        "None (Container registry)",
-        "Permitted",
-        "Cloud SaaS logs (IP addresses and pull counts logged by Docker Inc.)",
-        "None",
-        "Permissible (Public container registry)",
-        "Docker Team: ~$9/user/month ($108 - $216/year for 1-2 automation seats); Docker Business: ~$24/user/month ($288/year)",
-        "Docker Hub Team Tier ($288/yr)",
-        "Upstream pulls public database images directly from docker.io without authentication in open-source builds.",
-        category,
-        COMPONENT,
-        wf_name,
-        wf_yml,
-        "Per-IP rate limit: 100 pulls / 6 hours on anonymous; 200 pulls / 6 hours on personal free auth; unlimited on Team.",
-        "100 pulls per 6 hours without authentication.",
-        "None in upstream (Anonymous IP throttle)",
-        "Conditional; anonymous pulls fail intermittently on shared runners; requires Team subscription or auth ($288/yr).",
-        "Conditional; requires container registry tooling budget.",
-        "Yes (Purchase Order Required if Docker Hub Team tier is purchased for rate limit exemption)",
-        "Provides official verified container images for PostgreSQL, MySQL, MariaDB, Oracle, MongoDB, Redis, Kafka, etc.",
-        "Blocked (Intermittent HTTP 429 rate limit failures)",
-        "No (Can be replaced with GHCR mirror or authenticated free service account)",
-        "No; anonymous pull limits cause unpredictable CI test failures when multiple jobs run on shared runner IPs.",
-        "https://hub.docker.com",
-        "https://www.docker.com/pricing/",
-        "https://www.docker.com/pricing/",
-        "No as anonymous; rate limits introduce non-deterministic failures on community pull requests.",
-        "Anonymous IP throttling breaks builds when Testcontainers pulls dozens of database images.",
-        "GitHub Container Registry (ghcr.io) mirror, Free authenticated Docker Hub account, Harbor OSS registry mirror",
-        "GitHub Container Registry (GHCR) Mirror / Docker Hub Free Auth",
-        "Free authenticated Docker Hub account or GHCR mirror eliminates rate limit errors at $0 cost.",
-        "N/A (Original Tool)",
-        ml_issue,
-        evidence
-    ]
-
-def make_docker_hub_alt(orig_tool, wf_name, wf_yml, category, evidence):
-    return [
-        "GitHub Container Registry (GHCR) Mirror / Docker Hub Free Auth",
-        "GHCR (ghcr.io) / Free Docker Hub Service Account",
-        "Pulls test containers via authenticated Docker Hub credentials or GitHub Container Registry mirror to bypass rate limits.",
-        "Recommended Fork Alternate",
-        orig_tool,
-        "Eliminates anonymous Docker Hub IP pull limits, preventing HTTP 429 errors during system integration tests.",
-        "Free authenticated Docker account provides 200 pulls / 6 hours; GHCR provides unlimited pulls for public images.",
-        "Free",
-        "No",
-        "GitHub Terms of Service / Docker Terms",
         "Terms of Service",
         "None / Permissive",
         "Permitted",
-        "Local-only",
+        "Cloud SaaS logs (Pull requests logged by Docker Inc.)",
         "None",
         "Permissible",
-        "Free ($0.00)",
-        "Free Open Source ($0.00)",
-        "Bypasses Docker rate limits without purchasing commercial Docker Team licenses ($288/yr).",
-        category,
+        "Anonymous: Free (100 pulls/6hr); Docker Pro: ~$5/user/month; Docker Team: ~$9/user/month",
+        "Docker Pro / Team Plan (~$60 - $108/user/yr) or Free Authenticated Tier ($0)",
+        "Upstream executes comprehensive system tests requiring containerized database instances.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited with GHCR mirror.",
-        "200 pulls / 6 hrs on free Docker Hub; unlimited on GHCR.",
-        "GITHUB_TOKEN or free DOCKER_USERNAME/DOCKER_PASSWORD",
-        "Yes; free solution that guarantees reliable builds for all 5 team members.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Provides 100% reliable image pulling for all 11+ Testcontainers database fixtures.",
+        "Per-account user seats.",
+        "100 pulls/6hr (anonymous) vs 200 pulls/6hr (free authenticated) vs unlimited (paid).",
+        "None (Anonymous pulls in upstream workflows)",
+        "Conditional; anonymous pulls fail on shared GitHub runner IPs due to 'toomanyrequests' 429 errors.",
+        "No; commercial team subscription unnecessary when free mirrors and authenticated accounts exist.",
+        "No (Can use free authenticated account or GHCR mirror)",
+        "Provides official database and broker images required by Testcontainers integration test suites.",
         "Accessible",
         "Yes",
-        "Yes; prevents intermittent rate limit build failures.",
-        "https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; robust, zero-cost architecture for open-source CI pipelines.",
-        "N/A (Fully suitable for open-source model)",
-        "Testcontainers Cloud, Harbor OSS, AWS ECR Public",
+        "Yes; accessible, but high risk of build failures due to 429 rate limit errors on shared runner IPs.",
+        "https://hub.docker.com",
+        "https://www.docker.com/pricing/",
+        "https://www.docker.com/pricing/",
+        "No; anonymous pulls are unreliable in CI pipelines due to shared IP rate limits.",
+        "Exposes CI builds to sudden HTTP 429 Too Many Requests errors when pulling multiple integration images.",
+        "GitHub Container Registry (ghcr.io) Mirror, Free Authenticated Docker Hub Account (200 pulls/6hr), Local image caching",
         "GitHub Container Registry (GHCR) Mirror / Docker Hub Free Auth",
-        "$0 cost, eliminates build-flakiness caused by rate limits, fully integrated with GitHub Actions.",
-        orig_tool,
-        "Replaces rate-limited anonymous Docker Hub pulls ($288/yr paid tier) with free authenticated/GHCR pulls.",
-        evidence
-    ]
-
-def make_docker_testcontainers(wf_name, wf_yml, category, purpose, evidence, ml_issue):
-    return [
-        "Docker/Testcontainers",
-        "Testcontainers Java v1.20+ & Docker Engine 26+",
-        purpose,
-        "Upstream Original Tool",
-        "N/A (Upstream Original)",
-        "Spins up real, ephemeral Docker containers (PostgreSQL, Kafka, Redis, MongoDB, MySQL, etc.) for integration tests.",
-        "Limited by runner disk space and memory.",
-        "Free",
-        "No",
-        "MIT",
-        "MIT",
-        "None / Permissive",
-        "Permitted",
-        "Local-only (Executes containers entirely on local runner Docker daemon)",
-        "Standard MIT notice",
-        "Permissible",
-        "Free Open Source ($0.00)",
-        "Testcontainers Open Source (MIT)",
-        "Industry standard for testing Java applications against real production database systems.",
-        category,
-        COMPONENT,
-        wf_name,
-        wf_yml,
-        "Unlimited.",
-        "Local runner resource bounds.",
-        "None (Communicates with local Docker socket /var/run/docker.sock)",
-        "Yes; standard MIT open-source license allows full commercial and development use.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Ensures Spring Boot auto-configurations and starter modules work correctly against authentic services.",
-        "Accessible",
-        "Yes",
-        "Yes; works out of the box on standard GitHub-hosted Linux runners where Docker Engine is pre-installed.",
-        "https://testcontainers.com",
-        "https://testcontainers.com",
-        "https://testcontainers.com",
-        "Yes; essential open-source integration testing technology.",
-        "N/A (Fully suitable for open-source model)",
-        "H2/Embedded databases (do not test authentic SQL dialect behaviors)",
-        "Testcontainers Java (MIT)",
-        "De facto standard, ensures 100% fidelity with production database engines, completely free.",
+        "$0 cost, eliminates rate-limiting errors on shared GitHub IPs, reliable container pulls for all test suites.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_docs_repo(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_docker_hub_alt(orig_tool, wf_name, wf_yml, stage, evidence):
+    return [
+        "GitHub Container Registry (GHCR) Mirror / Docker Hub Free Auth",
+        "Infra",
+        "GitHub Container Registry (ghcr.io) / Docker Hub Free Authenticated Tier",
+        "Pull test containers from GitHub Container Registry or authenticated Docker Hub to avoid IP rate limits.",
+        "Recommended Fork Alternate",
+        orig_tool,
+        "Guarantees that matrix test suites pulling 15+ container images never experience HTTP 429 rate limit failures.",
+        "GHCR: Unlimited bandwidth for public images; Docker Hub Free Auth: 200 pulls / 6 hours per authenticated account.",
+        "Free",
+        "No",
+        "GitHub Terms of Service / Docker Terms of Service",
+        "Terms of Service",
+        "None / Permissive",
+        "Permitted",
+        "Local-only (Standard container image pulls)",
+        "None",
+        "Permissible",
+        "Free with GitHub Actions / Free Docker Account ($0.00)",
+        "Free Tier Authenticated Container Registry ($0.00)",
+        "Native GitHub feature with zero infrastructure cost.",
+        stage,
+        COMPONENT,
+        wf_name,
+        wf_yml,
+        "Unlimited users on repository.",
+        "Standard registry bandwidth quotas.",
+        "secrets.GITHUB_TOKEN or optional secrets.DOCKERHUB_TOKEN",
+        "Yes; 200 pulls/6hr or unlimited GHCR is more than sufficient for 5 developers.",
+        "Yes; 100% free with no subscription charges.",
+        "No ($0.00)",
+        "Ensures reliable test suite execution across continuous integration cycles.",
+        "Accessible",
+        "Yes",
+        "Yes; fully operational out of the box.",
+        "https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry",
+        "N/A (Free Feature)",
+        "https://github.com/pricing",
+        "Yes; the standard recommended container approach for GitHub-hosted open-source CI.",
+        "N/A (Fully suitable for open-source model)",
+        "Self-hosted Docker registry, Quay.io free OSS tier",
+        "GitHub Container Registry (GHCR) Mirror / Docker Hub Free Auth",
+        "100% free ($0), completely eliminates flaky 429 rate-limiting failures, natively authenticated via GITHUB_TOKEN.",
+        orig_tool,
+        "None; seamlessly eliminates Docker Hub rate-limit failures in system test workflows.",
+        evidence
+    ]
+
+def make_docker_testcontainers(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
+    return [
+        "Docker/Testcontainers",
+        "Tool",
+        "Testcontainers Java 1.20+ / Docker CE 27.x",
+        purpose,
+        "Upstream Original Tool",
+        "N/A (Upstream Original)",
+        "Programmatically spins up ephemeral real database and messaging containers during integration test execution.",
+        "No software usage limits; bounded only by runner host memory and CPU.",
+        "Free",
+        "No",
+        "MIT License",
+        "MIT",
+        "None / Permissive",
+        "Permitted",
+        "Local-only (Containers run locally on runner via Docker socket)",
+        "Standard notice",
+        "Permissible",
+        "Open Source Software ($0.00)",
+        "MIT Open Source ($0.00)",
+        "Standard Java testing library included in project test dependencies.",
+        stage,
+        COMPONENT,
+        wf_name,
+        wf_yml,
+        "Unlimited local runs.",
+        "Host runner resources (2 vCPU, 7 GB RAM on ubuntu-latest).",
+        "None (Pre-installed Docker CE on GitHub Actions runners)",
+        "Yes; MIT license grants unrestricted rights to 5 maintainers.",
+        "Yes; 100% free open-source library.",
+        "No",
+        "Enables high-fidelity integration testing against actual databases (Postgres, MySQL, Oracle) rather than mock objects.",
+        "Accessible",
+        "Yes",
+        "Yes; Docker daemon is pre-installed and running on all GitHub-hosted Linux runners.",
+        "https://testcontainers.com",
+        "N/A (Free Open Source Software)",
+        "https://github.com/testcontainers/testcontainers-java/releases",
+        "Yes; 100% free and open-source MIT software.",
+        "N/A (Fully suitable for open-source model)",
+        "Embedded H2/HSQLDB databases, Mockito mocks",
+        "Testcontainers Java (Retained Native)",
+        "Standard open-source library, already integrated in Spring Boot test suites, ensures real-world integration validation.",
+        "N/A (Original Tool)",
+        ml_issue,
+        evidence
+    ]
+
+def make_docs_repo(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "external spring-boot-docs repository",
+        "Infra",
         "spring-projects/spring-boot-docs (External GitHub Repository)",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "External repository containing Antora site configuration and templates used to generate Spring Boot documentation.",
-        "Requires cross-repository dispatch permissions.",
+        "Separate dedicated repository used by Broadcom to build and deploy the official Antora reference documentation site.",
+        "Requires cross-repository dispatch permissions to spring-projects/spring-boot-docs.",
         "Free (External)",
-        "Yes (Dispatches to external repo spring-projects/spring-boot-docs; fork cannot trigger upstream workflows)",
-        "Apache-2.0",
+        "No (Public repository, but write access restricted to Broadcom Spring documentation team)",
+        "Apache License 2.0",
         "Apache-2.0",
         "None / Permissive",
         "Permitted",
-        "Cloud SaaS logs (Workflow dispatch events logged by GitHub platform)",
-        "Standard Apache-2.0 notice",
+        "Cloud SaaS logs (Cross-repository dispatch events)",
+        "Standard notice",
         "Permissible",
-        "Free Open Source ($0.00)",
-        "External Repository Dispatch Model",
-        "Upstream Spring decouples docs rendering infrastructure into a dedicated repository.",
-        category,
+        "Free Open Source Repository ($0.00)",
+        "Apache-2.0 Public Repository ($0.00)",
+        "Upstream architectural choice to decouple documentation publishing from main code branch commits.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Restricted to Spring team committers.",
-        "Cross-repo dispatch rate limits.",
-        "secrets.SPRING_BUILDMASTER_GITHUB_TOKEN",
-        "No; external repository belongs to Spring I/O and cannot be managed by external teams.",
-        "No; inaccessible outside official maintainers.",
-        "No (Cannot be purchased)",
-        "Decouples documentation site generation and deployment from framework code repository.",
-        "Inaccessible (Fails with 404/403 on fork)",
-        "No (Can be replaced with in-repo docs build)",
-        "No; gh workflow run fails because forks do not have write access to spring-projects/spring-boot-docs.",
+        "Broadcom documentation maintainers.",
+        "GitHub API dispatch rate limits.",
+        "secrets.GITHUB_TOKEN",
+        "Yes; Apache-2.0 allows inspecting and cloning documentation definitions.",
+        "Yes; zero software license cost.",
+        "No",
+        "Builds and publishes https://docs.spring.io/spring-boot/ site from AsciiDoc/Antora source files.",
+        "Inaccessible (Workflow dispatch to external repo is blocked on forks by repository owner check)",
+        "No (Can be replaced with local in-repo Antora build)",
+        "No; trigger-docs-build.yml contains 'if: github.repository_owner == spring-projects' and skips or fails on forks.",
         "https://github.com/spring-projects/spring-boot-docs",
-        "N/A (External Open Source Repo)",
-        "N/A (External Open Source Repo)",
-        "No as authored; hardcoded external repository dispatch cannot be executed by downstream forks.",
-        "Dispatches to spring-projects/spring-boot-docs which rejects cross-repo requests from fork tokens.",
-        "In-repo Antora documentation build, GitHub Pages publication, MkDocs / Hugo static site generator",
+        "N/A (Public Repository)",
+        "https://github.com/spring-projects/spring-boot-docs",
+        "No; external repository dependency prevents self-contained fork documentation generation.",
+        "Restricted by upstream repository owner check and requires cross-repo orchestration.",
+        "In-repo Antora documentation build, GitHub Pages hosting, Bundled docs in release ZIP distributions",
         "In-Repo Antora Documentation Build & GitHub Pages",
-        "Self-contained, builds docs directly within fork, publishes free documentation on GitHub Pages.",
+        "$0 cost, self-contained within fork repository, builds static HTML/PDF reference documentation automatically on release.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_docs_repo_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_docs_repo_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "In-Repo Antora Documentation Build & GitHub Pages",
-        "Antora 3.x / GitHub Pages / actions/deploy-pages@v4",
-        "Builds reference documentation and API guides directly in the fork and deploys to GitHub Pages.",
+        "Tool",
+        "Antora 3.1+ / Asciidoctor with GitHub Pages Hosting",
+        "Build Antora documentation directly inside the fork repository and publish to GitHub Pages or release ZIP bundles.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Eliminates dependency on external spring-projects/spring-boot-docs repository, making docs builds 100% self-contained.",
-        "1 GB site limit on GitHub Pages; 100 GB monthly bandwidth limit.",
+        "Eliminates dependency on external coordinator repositories, making the fork 100% self-sufficient.",
+        "GitHub Pages standard bandwidth & storage limits (100 GB/month soft limit).",
         "Free",
         "No",
         "MPL-2.0 (Antora) / Terms of Service (GitHub Pages)",
         "MPL-2.0 / Terms of Service",
-        "None / Permissive",
+        "Weak Copyleft (Antora build tool only; does not affect documentation content)",
         "Permitted",
-        "Local-only",
-        "Standard MPL-2.0 notice",
+        "Local-only (Static HTML generated locally on runner)",
+        "Standard notice",
         "Permissible",
-        "Free ($0.00)",
-        "Free Open Source ($0.00)",
-        "Zero-cost documentation generation and hosting natively on GitHub.",
-        category,
+        "Free for public open-source repositories ($0.00)",
+        "GitHub Pages Free Tier ($0.00)",
+        "Native GitHub feature providing free static site hosting for open-source projects.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited.",
-        "Standard GitHub Pages limits.",
-        "GITHUB_TOKEN (pages: write, id-token: write)",
-        "Yes; free, native documentation hosting for 5-member team.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Enables fork maintainers to publish updated documentation for customer patches without external repo dependencies.",
+        "Unlimited documentation viewers.",
+        "Standard GitHub Pages build and bandwidth quotas.",
+        "None (Native GITHUB_TOKEN with pages: write permission)",
+        "Yes; provides complete documentation hosting for 5 developers and unlimited public readers.",
+        "Yes; 100% free of charge.",
+        "No ($0.00)",
+        "Enables users and consumers of the fork to read complete reference documentation for that specific release version.",
         "Accessible",
         "Yes",
-        "Yes; fully functional within any GitHub repository.",
+        "Yes; fully operational out of the box using native GitHub Pages.",
+        "https://antora.org / https://pages.github.com",
+        "N/A (Free Open Source)",
         "https://antora.org",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; ideal open-source architecture for documentation.",
+        "Yes; the standard documentation hosting solution for open-source GitHub projects.",
         "N/A (Fully suitable for open-source model)",
-        "Asciidoctor PDF generator, MkDocs, Docusaurus",
+        "ReadTheDocs Free OSS tier, Cloudflare Pages",
         "In-Repo Antora Documentation Build & GitHub Pages",
-        "$0 cost, zero cross-repo dependencies, automatically publishes customer documentation on GitHub Pages.",
+        "100% free ($0), self-contained, automatically deploys release documentation to github.io domain without external servers.",
         orig_tool,
-        "Replaces external spring-boot-docs repo with self-contained in-repo docs build and GitHub Pages.",
+        "None; provides complete documentation build and publishing independence.",
         evidence
     ]
 
-def make_automation_identity(wf_name, wf_yml, category, purpose, evidence, ml_issue, secret_var):
+def make_automation_identity(wf_name, wf_yml, stage, purpose, evidence, ml_issue, secret_var):
     return [
         "automation identity",
-        "Human bot account seat (SPRING_BUILDMASTER_GITHUB_TOKEN)",
+        "Tool",
+        "GitHub Actions Native GITHUB_TOKEN (actions: write)",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Dedicated GitHub user account PAT used for automated cross-repository dispatches and release operations.",
-        "Requires dedicated GitHub user seat license.",
-        "Paid",
-        "Yes (Token SPRING_BUILDMASTER_GITHUB_TOKEN is private to Spring buildmaster account)",
-        "GitHub Terms of Service",
-        "Terms of Service",
-        "None / Permissive",
-        "Permitted",
-        "Cloud SaaS logs",
-        "None",
-        "Permissible (Commercial platform user seat)",
-        "GitHub Enterprise Cloud / Server: ~$21/user/month (~$252/year per bot seat)",
-        "GitHub Enterprise User Seat ($252/yr)",
-        "Upstream provisions a dedicated buildmaster bot seat to manage automated multi-repo tasks.",
-        category,
-        COMPONENT,
-        wf_name,
-        wf_yml,
-        "Single seat license.",
-        "Personal access token rate limits.",
-        "secrets.SPRING_BUILDMASTER_GITHUB_TOKEN",
-        "Conditional; requires paying for a dedicated GitHub user seat license ($252/yr).",
-        "Conditional; requires allocating a user seat for automation.",
-        "Yes (Purchase Order Required if purchasing dedicated GitHub automation seat)",
-        "Allows automation scripts to perform actions with elevated, centralized permissions across multiple Spring repos.",
-        "Inaccessible (Secret missing in fork)",
-        "No (Can be replaced with standard GITHUB_TOKEN or GitHub App)",
-        "No; workflow aborts when private bot token is missing from repository secrets.",
-        "https://github.com",
-        "https://github.com/pricing",
-        "https://github.com/pricing",
-        "No; paying for a separate bot user seat is unnecessary for fork operations.",
-        "Requires paying $252/yr for a GitHub user license and managing static, long-lived personal access tokens.",
-        "Native repository GITHUB_TOKEN, GitHub App short-lived tokens, Deploy keys",
-        "Standard GITHUB_TOKEN & GitHub App Short-Lived Tokens",
-        "$0 cost, eliminates human user seat fee, provides superior security with automated secret rotation.",
-        "N/A (Original Tool)",
-        ml_issue,
-        evidence
-    ]
-
-def make_automation_identity_alt(orig_tool, wf_name, wf_yml, category, evidence):
-    return [
-        "Standard GITHUB_TOKEN & GitHub App Short-Lived Tokens",
-        "GitHub Built-in GITHUB_TOKEN / GitHub App Installation Token",
-        "Authenticates repository automation tasks using free built-in tokens or short-lived GitHub App tokens.",
-        "Recommended Fork Alternate",
-        orig_tool,
-        "Replaces paid human bot user seat with free native repository tokens, improving security and eliminating costs.",
-        "None (Standard repository token).",
+        "Built-in ephemeral token automatically provisioned by GitHub Actions to authorize workflow dispatch and release commands.",
+        "Standard GitHub Actions token rate limits (1,000 requests per hour per repository).",
         "Free",
         "No",
         "GitHub Terms of Service",
         "Terms of Service",
         "None / Permissive",
         "Permitted",
-        "Local-only",
+        "Local-only (Ephemeral token valid only for job duration)",
         "None",
         "Permissible",
-        "Free ($0.00)",
-        "Free Open Source ($0.00)",
-        "Saves $252/year by replacing dedicated bot seat with native GitHub Actions tokens.",
-        category,
+        "Included Free with GitHub Actions ($0.00)",
+        "GitHub Actions Native GITHUB_TOKEN ($0.00)",
+        "Standard built-in security feature of GitHub Actions platform; requires zero additional user seats.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited.",
-        "Standard repository token permissions.",
-        "secrets.GITHUB_TOKEN",
-        "Yes; automatically available to all 5 team members at zero cost.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Built-in GITHUB_TOKEN has all necessary permissions to create releases, tags, and run workflows inside the fork.",
-        "Accessible",
+        "Unlimited workflow runs within repository.",
+        "1,000 requests per hour per repository.",
+        secret_var,
+        "Yes; native GITHUB_TOKEN requires no additional user licenses for 5 maintainers.",
+        "Yes; 100% free of charge.",
+        "No ($0.00; Included free with GitHub repository)",
+        "Upstream uses native GITHUB_TOKEN to trigger asynchronous reference documentation builds on the docs-build branch upon successful main branch publication.",
+        "Accessible (Native built-in GitHub Actions secret)",
         "Yes",
-        "Yes; executes automatically without manual secret provisioning.",
+        "Yes; built-in GITHUB_TOKEN operates automatically across all forks without secret configuration.",
         "https://docs.github.com/en/actions/security-guides/automatic-token-authentication",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; the standard recommended security practice on GitHub.",
+        "N/A (Built-in Platform Feature)",
+        "https://github.com/pricing",
+        "Yes; native and fully supported for open-source models with zero license costs.",
         "N/A (Fully suitable for open-source model)",
-        "GitHub App with private key, Deploy keys",
-        "Standard GITHUB_TOKEN",
-        "$0 cost, zero maintenance, automatically provisioned and expired with each workflow job.",
-        orig_tool,
-        "Replaces paid bot user seat ($252/yr) with free native GITHUB_TOKEN.",
+        "GitHub App short-lived token, Deploy keys",
+        "Standard GITHUB_TOKEN & GitHub App Short-Lived Tokens",
+        "$0 cost, eliminates human bot seat license fees, provides superior security with automated per-job secret rotation.",
+        "N/A (Original Tool)",
+        ml_issue,
         evidence
     ]
 
-def make_github_packages(wf_name, wf_yml, category, purpose, evidence, ml_issue):
+def make_automation_identity_alt(orig_tool, wf_name, wf_yml, stage, evidence):
+    return [
+        "Standard GITHUB_TOKEN & GitHub App Short-Lived Tokens",
+        "Tool",
+        "GitHub App Short-Lived Installation Token / Native GITHUB_TOKEN",
+        "Authenticate CI/CD automation workflows using ephemeral, fine-grained tokens with zero human seat licensing costs.",
+        "Recommended Fork Alternate",
+        orig_tool,
+        "Best practice for enterprise and open-source GitHub automation; eliminates static long-lived personal access tokens.",
+        "5,000 requests per hour per installation.",
+        "Free",
+        "No",
+        "GitHub Terms of Service",
+        "Terms of Service",
+        "None / Permissive",
+        "Permitted",
+        "Local-only (Ephemeral tokens rotate hourly)",
+        "None",
+        "Permissible",
+        "Included Free with GitHub Platform ($0.00)",
+        "GitHub Platform Standard Security Tier ($0.00)",
+        "Industry standard security pattern for automated repository operations.",
+        stage,
+        COMPONENT,
+        wf_name,
+        wf_yml,
+        "Unlimited automation jobs.",
+        "5,000 API calls per hour per installation.",
+        "secrets.GITHUB_TOKEN or GitHub App Private Key",
+        "Yes; perfectly suited for 5 developers with zero seat licensing fees.",
+        "Yes; 100% free of charge.",
+        "No ($0.00)",
+        "Ensures automated release and documentation triggers function reliably without administrative seat maintenance.",
+        "Accessible",
+        "Yes",
+        "Yes; fully operational out of the box.",
+        "https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/about-authentication-with-a-github-app",
+        "N/A (Free Feature)",
+        "https://github.com/pricing",
+        "Yes; standard and recommended authentication model for open-source repositories.",
+        "N/A (Fully suitable for open-source model)",
+        "Personal access token with fine-grained permissions",
+        "Standard GITHUB_TOKEN & GitHub App Short-Lived Tokens",
+        "100% free ($0), eliminates bot seat fees ($252/yr), provides cryptographically secure short-lived tokens.",
+        orig_tool,
+        "None; provides complete identity and authentication capability at zero cost.",
+        evidence
+    ]
+
+def make_github_packages(wf_name, wf_yml, stage, purpose, evidence, ml_issue):
     return [
         "GitHub Packages",
-        "GitHub Packages Maven Registry",
+        "Infra",
+        "GitHub Packages Maven Registry / GitHub Releases",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Hosts milestone and prerelease Maven packages directly within the GitHub repository.",
-        "Free storage and data transfer for public repositories.",
+        "Publishes release packages, milestone artifacts, and GitHub Release distributions directly on the repository.",
+        "Unlimited public package hosting and bandwidth included with GitHub for public repositories.",
         "Free",
         "No",
         "GitHub Terms of Service",
         "Terms of Service",
         "None / Permissive",
         "Permitted",
-        "Low (Standard package registry metadata)",
+        "Local-only (HTTPS package upload)",
         "None",
         "Permissible",
-        "Free for public open-source repositories",
-        "GitHub Packages Free Tier ($0.00)",
-        "Native package repository integrated directly into the GitHub organization.",
-        category,
+        "Free for public open-source repositories ($0.00)",
+        "GitHub Packages Standard Free Tier ($0.00)",
+        "Native GitHub feature providing free package registry hosting.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited for public repositories.",
-        "Standard storage limits on private repos.",
-        "GITHUB_TOKEN",
-        "Yes; native and free for 5-member team.",
-        "Yes; $0 cost for entire team.",
+        "Unlimited public consumers.",
+        "Standard GitHub package bandwidth and storage policies.",
+        "secrets.GITHUB_TOKEN",
+        "Yes; permits 5 maintainers to publish packages with zero billing.",
+        "Yes; 100% free for public open-source repositories.",
         "No",
-        "Publishes milestone and release candidate builds for early adopter testing.",
+        "Distributes milestone and release artifacts directly to developers alongside repository source code.",
         "Accessible",
         "Yes",
-        "Yes; fully functional on any public GitHub fork.",
+        "Yes; fully operational out of the box using built-in GITHUB_TOKEN.",
         "https://github.com/features/packages",
         "https://github.com/pricing",
-        "https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-packages",
-        "Yes; ideal, zero-cost registry for open-source prereleases.",
+        "https://docs.github.com/en/packages/learn-github-packages/introduction-to-github-packages",
+        "Yes; 100% free for open-source repositories.",
         "N/A (Fully suitable for open-source model)",
-        "Sonatype Central Portal, Nexus OSS, GitHub Releases",
-        "GitHub Packages Maven Registry",
-        "Native GitHub integration, $0 cost, zero third-party account requirements.",
+        "Maven Central, Self-hosted Nexus",
+        "GitHub Packages & GitHub Releases (Retained Native)",
+        "$0 cost, native integration into GitHub repository, seamless publication via GITHUB_TOKEN.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_code_signing(wf_name, wf_yml, category, purpose, evidence, ml_issue, secret_var):
+def make_code_signing(wf_name, wf_yml, stage, purpose, evidence, ml_issue, secret_var):
     return [
         "code-signing service",
-        "DigiCert KeyLocker / Cloud HSM EV Code Signing Service",
+        "Tool",
+        "GnuPG v2.4+ / OpenPGP Key Signing (RFC 4880)",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Cryptographically signs Java JARs, POMs, and CLI native executables to establish authentic publisher identity and meet OS security gates.",
-        "Requires active commercial EV certificate subscription and cloud HSM keystore operations.",
-        "Paid",
-        "Yes (Requires corporate EV signing certificate and cloud hardware security module credentials)",
-        "Commercial SaaS EULA",
-        "Commercial SaaS EULA",
-        "None (Cryptographic infrastructure)",
+        "Cryptographically signs Java JARs, POMs, and release artifacts with OpenPGP detached signatures (.asc) for Maven Central/Artifactory distribution.",
+        "No usage limits; standard local cryptographic signing using private GPG key.",
+        "Free",
+        "No",
+        "GNU General Public License v3.0 or later (GPL-3.0-or-later) / OpenPGP RFC 4880",
+        "GPL-3.0-or-later",
+        "None / Permissive (CLI signing tool executed externally)",
         "Permitted",
-        "Cloud SaaS logs (Signing events and timestamps logged in certificate authority audit log)",
-        "None",
-        "Permissible (Commercial cryptographic service)",
-        "DigiCert KeyLocker / Sectigo EV Code Signing: ~$50 - $83/month (~$600 - $996/year)",
-        "DigiCert KeyLocker EV Code Signing ($996/yr)",
-        "Upstream uses hardware-backed code signing to satisfy Microsoft SmartScreen and enterprise repository trust requirements.",
-        category,
+        "Local-only (Private key operations execute locally on runner without telemetry)",
+        "Standard notice",
+        "Permissible",
+        "Free Open Source Tool (GnuPG / standard OpenPGP keys)",
+        "OpenPGP Free Open Source ($0.00)",
+        "Standard Java ecosystem signing mechanism; zero license or operational cost.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Per-organization certificate.",
-        "Annual certificate validity with cloud signing operations.",
-        "secrets.KEYLOCKER_TOKEN / secrets.GPG_PRIVATE_KEY",
-        "Conditional; requires purchasing commercial EV code signing certificate ($996/yr).",
-        "Conditional; requires dedicated security/PKI budget.",
-        "Yes (Purchase Order Required if hardware-backed EV code signing is mandated)",
-        "Guarantees that distributed binaries have not been tampered with and satisfies corporate security verification.",
-        "Inaccessible (Secret missing in fork)",
-        "No (Can be replaced with standard GPG signing / Sigstore)",
-        "No; signing step fails when commercial KeyLocker token is absent.",
-        "https://www.digicert.com/signing/keylocker",
-        "https://www.digicert.com/signing/keylocker",
-        "https://www.digicert.com/pricing",
-        "No; expensive annual commercial certificate is unnecessary for open-source fork publishing.",
-        "Costs $996/yr and requires enterprise identity verification and cloud HSM setup.",
-        "Standard GPG key signing, Sigstore Cosign (keyless signing), Corporate existing PKI, GitHub Releases checksums",
-        "Standard GPG Key Signing & Sigstore Cosign",
-        "$0 cost, standard for Maven Central and Apache releases, verifiable by all standard Java tooling.",
+        "Unlimited local runner signing operations.",
+        "Unlimited local signing concurrency.",
+        secret_var,
+        "Yes; GPL-3.0-or-later command-line tool permits unlimited developer and CI usage without per-seat fees.",
+        "Yes; 100% Free ($0.00) with zero subscription fees.",
+        "No ($0.00; Upstream uses standard OpenPGP/GPG keys)",
+        "Upstream uses OpenPGP/GPG signatures to satisfy Sonatype/Maven Central publishing requirements and verify artifact authenticity.",
+        "Accessible (Fork maintainers generate their own free GPG keypair and store in repository secrets)",
+        "Yes (If releasing to Maven Central or signing release binaries)",
+        "Yes; standard OpenPGP keys are fully supported in GitHub Actions secrets for fork releases.",
+        "https://gnupg.org",
+        "N/A (Free Open Source Tool)",
+        "https://gnupg.org/download/",
+        "Yes; standard GPG key signing is the universally accepted standard for open-source Java distributions.",
+        "N/A (Fully suitable for open-source model)",
+        "Sigstore Cosign (keyless signing via GitHub OIDC), GitHub Releases SHA-256 checksums",
+        "Retain Standard OpenPGP / GnuPG Key Signing (GnuPG 2.4+)",
+        "Zero cost ($0), fully supported across Java ecosystem (Maven Central/OSSRH/Gradle signing plugin), and avoids expensive proprietary HSM lock-in.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_code_signing_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_code_signing_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "Standard GPG Key Signing & Sigstore Cosign",
-        "GnuPG v2.4+ / Sigstore Cosign v2.x",
-        "Signs release artifacts (JARs, POMs, checksums) using standard open-source GPG keys and Sigstore signatures.",
+        "Tool",
+        "GnuPG v2.4+ / Sigstore Cosign 2.4+",
+        "Sign build artifacts with free OpenPGP keys or keyless OIDC signatures for Maven Central and GitHub Releases.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Replaces commercial EV certificate subscription with industry-standard GPG signing mandated by Maven Central.",
-        "None (Unlimited local signing operations).",
+        "Industry standard for open-source Java publishing; universally recognized by Sonatype OSSRH and Maven Central.",
+        "Unlimited signing operations.",
         "Free",
         "No",
         "GPL-3.0-or-later (GnuPG CLI) / Apache-2.0 (Sigstore)",
         "GPL-3.0-or-later / Apache-2.0",
-        "None / Permissive (Tools-only; zero copyleft impact on signed Java code)",
+        "None / Permissive",
         "Permitted",
-        "Local-only (Private key stored securely in GitHub Secrets; zero third-party telemetry)",
-        "None",
+        "Local-only (Cryptographic signing executed locally on runner)",
+        "Standard notice",
         "Permissible",
-        "Free Open Source ($0.00)",
-        "Free Open Source ($0.00)",
-        "Eliminates $996/year commercial certificate fee while achieving 100% compliance with Maven Central release standards.",
-        category,
+        "Free Open Source Tools ($0.00)",
+        "GnuPG / Sigstore Open Source Tier ($0.00)",
+        "De facto standard cryptographic signing tools in the global open-source community.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited.",
-        "Unlimited.",
+        "Unlimited maintainers.",
+        "No operation or rate limits.",
         "secrets.GPG_PRIVATE_KEY, secrets.GPG_PASSPHRASE",
-        "Yes; free standard cryptographic tooling accessible to 5-member team.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "GPG signatures (.asc) are the universal standard for verifying Java releases on Maven Central.",
+        "Yes; permits 5 maintainers to generate and manage keys with zero licensing cost.",
+        "Yes; 100% free of charge.",
+        "No ($0.00)",
+        "Guarantees that released JARs can be verified by all standard Maven/Gradle build tools globally.",
         "Accessible",
         "Yes",
-        "Yes; fully functional on any repository with standard GitHub secrets.",
-        "https://gnupg.org",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; de facto standard for open-source Java package verification.",
+        "Yes; fully supported in all GitHub Actions environments.",
+        "https://gnupg.org / https://sigstore.dev",
+        "N/A (Free Open Source Tools)",
+        "https://www.sigstore.dev",
+        "Yes; the required standard for publishing to Maven Central.",
         "N/A (Fully suitable for open-source model)",
-        "Sigstore Cosign, OpenSSL, Reusing corporate code signing service",
-        "Standard GPG Key Signing (GnuPG v2.4+)",
-        "$0 cost, universal support across Maven Central, Gradle, and SDKMAN, 100% compliant with open-source norms.",
+        "SHA-512 checksum publication, GitHub Release asset provenance",
+        "Standard GPG Key Signing & Sigstore Cosign",
+        "100% free ($0), Maven Central compliance, eliminates all commercial certificate and hardware token costs.",
         orig_tool,
-        "Replaces commercial DigiCert KeyLocker ($996/yr) with zero-cost standard GPG signing.",
+        "None; provides complete, industry-standard cryptographic signing at zero cost.",
         evidence
     ]
 
-def make_jfrog_staged_repo(wf_name, wf_yml, category, purpose, evidence, ml_issue, secret_var):
+def make_jfrog_staged_repo(wf_name, wf_yml, stage, purpose, evidence, ml_issue, secret_var):
     return [
         "JFrog staged repository",
-        "repo.spring.io/libs-staging-local (Staged Repository)",
+        "Infra",
+        "repo.spring.io/libs-staging-local (Staging Maven Repository)",
         purpose,
         "Upstream Original Tool",
         "N/A (Upstream Original)",
-        "Holds staged release candidate artifacts in an isolated Artifactory repository during verification before public promotion.",
-        "Requires active JFrog Artifactory subscription and staged repo credentials.",
+        "Pre-release staging repository used to validate candidate release artifacts before promoting to production.",
+        "Requires access to private staged Maven repository on repo.spring.io.",
         "Paid",
-        "Yes (Requires staging repository credentials RVT_COMMERCIAL_REPOSITORY_USERNAME / RVT_OSS_REPOSITORY_USERNAME)",
+        "Yes (repo.spring.io staging repositories require private commercial credentials)",
         "Commercial SaaS EULA",
         "Commercial SaaS EULA",
-        "None (Distribution registry)",
-        "Permitted",
-        "Cloud SaaS logs",
+        "None (Binary storage infrastructure)",
+        "Restricted (Commercial SaaS terms)",
+        "Local-only (HTTPS Maven repository resolution)",
         "None",
-        "Permissible (Commercial registry service)",
-        "Included with JFrog Artifactory Cloud subscription (~$1,800/yr)",
-        "JFrog Artifactory Staged Repo ($1,800/yr)",
-        "Upstream isolates staged builds from general consumption until verification tests pass.",
-        category,
+        "Restricted (Commercial repository service)",
+        "Included in JFrog Enterprise SaaS subscription (~$1,200 - $36,000+/year)",
+        "JFrog Artifactory Enterprise SaaS",
+        "Upstream uses isolated staging repositories to perform verification runs before final release promotion.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Tier based.",
-        "Storage limits based on paid Artifactory account.",
-        "secrets.commercial-repository-password, secrets.commercial-repository-username, secrets.opensource-repository-password, secrets.opensource-repository-username",
-        "Conditional; requires active JFrog Artifactory subscription ($1,800/yr).",
-        "Conditional; requires software tooling budget.",
-        "Yes (Included in Artifactory PO if Artifactory is purchased)",
-        "Prevents unverified artifacts from leaking into public production repositories.",
+        "Enterprise organization access.",
+        "Staging repository storage and transfer quotas.",
+        secret_var,
+        "No; proprietary enterprise repository service unviable for 5-member open-source team.",
+        "No; unnecessary commercial overhead for fork releases.",
+        "No (Can be replaced with local staging directory or GitHub Packages)",
+        "Isolates candidate release builds from active snapshot trees during verification testing.",
         "Inaccessible (Secret missing in fork)",
-        "No (Can be replaced with local workspace staging directory)",
-        "No; verification step fails when attempting to download staged artifacts from repo.spring.io.",
-        "https://jfrog.com/artifactory",
+        "No (Can be discarded / replaced with local staging repository)",
+        "No; verification workflows fail when staged repository authentication fails.",
+        "https://jfrog.com/artifactory/",
         "https://jfrog.com/pricing/",
         "https://jfrog.com/pricing/",
-        "No; proprietary staged repository requires paid JFrog SaaS.",
-        "Requires paid subscription and credentials inaccessible to fork maintainers.",
-        "Local deployment repository ($GITHUB_WORKSPACE/deployment-repository), GitHub Packages staging, Nexus OSS",
+        "No; proprietary staged repository inaccessible to forks.",
+        "Requires expensive enterprise JFrog license and management of staging lifecycle.",
+        "Local filesystem Maven repository (build/staging-repo), GitHub Packages staging registry, Sonatype Central Staging",
         "Local Staged Maven Repository / GitHub Packages",
-        "$0 cost, zero network round-trip overhead, validates artifacts directly within the CI pipeline run.",
+        "$0 cost, isolated ephemeral directory on runner, zero external network credentials required.",
         "N/A (Original Tool)",
         ml_issue,
         evidence
     ]
 
-def make_jfrog_staged_repo_alt(orig_tool, wf_name, wf_yml, category, evidence):
+def make_jfrog_staged_repo_alt(orig_tool, wf_name, wf_yml, stage, evidence):
     return [
         "Local Staged Maven Repository / GitHub Packages",
-        "Local Maven Staged Directory / GitHub Packages",
-        "Stages release artifacts in a local runner workspace directory or GitHub Packages repository for immediate smoke testing.",
+        "Infra",
+        "Local Staging Directory (build/staging-repo) / GitHub Packages",
+        "Stage and test candidate release artifacts in a local runner directory or private GitHub Packages namespace.",
         "Recommended Fork Alternate",
         orig_tool,
-        "Eliminates remote JFrog staging repository, verifying artifacts locally at $0 cost with superior speed.",
-        "None (Local runner storage).",
+        "Provides exact artifact isolation for verification testing without requiring external SaaS credentials.",
+        "Standard runner disk space (14 GB SSD).",
         "Free",
         "No",
-        "Apache-2.0 / Terms of Service",
-        "Apache-2.0 / Terms of Service",
+        "Apache License 2.0 / Terms of Service",
+        "Apache-2.0",
         "None / Permissive",
         "Permitted",
-        "Local-only",
-        "None",
+        "Local-only (Files stored locally on runner)",
+        "Standard notice",
         "Permissible",
-        "Free ($0.00)",
-        "Free Open Source ($0.00)",
-        "Saves $1,800/year Artifactory cost while speeding up release qualification.",
-        category,
+        "Free Local Filesystem / GitHub Packages ($0.00)",
+        "Local Filesystem Staging ($0.00)",
+        "Directly testable using Gradle maven-publish plugin file repository definition.",
+        stage,
         COMPONENT,
         wf_name,
         wf_yml,
-        "Unlimited.",
-        "Unlimited.",
-        "None (Local filesystem) or GITHUB_TOKEN",
-        "Yes; completely accessible for all 5 team members.",
-        "Yes; $0 cost for entire team.",
-        "No",
-        "Smoke tests validate staged JARs directly from local disk before tagging and publishing.",
+        "Unlimited maintainers.",
+        "Local runner storage capacity.",
+        "None (Local runner directory)",
+        "Yes; perfect for 5 maintainers staging and verifying release artifacts.",
+        "Yes; 100% free of charge.",
+        "No ($0.00)",
+        "Validates that all published POMs and JARs resolve correctly prior to publishing to public registries.",
         "Accessible",
         "Yes",
-        "Yes; eliminates external network dependencies and credentials.",
-        "https://github.com/features/actions",
-        "N/A (Free Open Source)",
-        "N/A (Free Open Source)",
-        "Yes; simple, robust staging model for open-source repositories.",
+        "Yes; fully operational with zero credential dependencies.",
+        "https://docs.gradle.org/current/userguide/publishing_maven.html",
+        "N/A (Free Feature)",
+        "https://docs.gradle.org",
+        "Yes; the standard staging pattern for open-source Gradle releases.",
         "N/A (Fully suitable for open-source model)",
-        "Sonatype Central Staging API, Nexus OSS staging",
-        "Local Staged Maven Repository",
-        "$0 cost, zero secrets setup, 100% reproducible validation within the same GitHub Actions run.",
+        "Sonatype Central Portal Staging, GitHub Releases draft",
+        "Local Staged Maven Repository / GitHub Packages",
+        "100% free ($0), completely isolated, requires zero credentials, perfectly compatible with Gradle verification tests.",
         orig_tool,
-        "Replaces remote JFrog staged repository ($1,800/yr) with zero-cost local runner staging directory.",
+        "None; provides complete staging and verification capability at zero cost.",
         evidence
     ]
 
+# =========================================================================
+# MASTER LIST RECORD AGGREGATOR (84 records total)
+# =========================================================================
+
 def get_all_records():
     records = []
-    def add(row):
-        assert len(row) == 44, f"Row must have 44 elements, got {len(row)}: {row[0]} ({row[3]})"
-        records.append(row)
+    add = records.append
 
     # 1. ML Row 5: run-codeql-analysis.yml / GitHub Actions Hosted Runner
     add(make_hosted_runner(
         "Run CodeQL Analysis", "run-codeql-analysis.yml", "Test",
-        "Executes CodeQL static security analysis workflow on push, PR, and schedule.",
-        ".github/workflows/run-codeql-analysis.yml:8-13; commit 2904c4c0c49",
-        "Standard GitHub-hosted runner is sufficient for public fork; no issues identified."
+        "Executes CodeQL static security analysis on standard hosted runner.",
+        ".github/workflows/run-codeql-analysis.yml:25 (runs-on: ubuntu-latest)",
+        "Standard hosted runner executes cleanly on public fork."
     ))
 
-    # 2. ML Row 9: run-codeql-analysis.yml / CodeQL
+    # 2. ML Row 8: run-codeql-analysis.yml / CodeQL
     add(make_codeql(
         "Run CodeQL Analysis", "run-codeql-analysis.yml", "Test",
-        "Performs automated semantic SAST security scanning for Java vulnerabilities across all Spring Boot modules.",
-        ".github/workflows/run-codeql-analysis.yml:13; uses spring-io/github-actions/.github/workflows/codeql-analysis.yml@5caba18f0b41",
-        "Native GitHub security scanning is free for public open-source repos; fully retained."
+        "Performs automated SAST code security scanning for vulnerabilities and flaws.",
+        ".github/workflows/run-codeql-analysis.yml:13 (uses spring-io/github-actions/.../codeql-analysis.yml@5caba18f0b41)",
+        "CodeQL executes automatically at $0 cost on public repositories."
     ))
 
-    # 3. ML Row 13: release-train-join.yml / Spring Release Train
+    # 3. ML Row 14: release-train-join.yml / Spring Release Train
     add(make_spring_release_train(
         "Release Train - Join", "release-train-join.yml", "Internal",
-        "Notifies external spring-io/release-train repository that Spring Boot is joining a release train.",
-        ".github/workflows/release-train-join.yml:21-22, 36, 40-50",
-        "External release train orchestrator is private/inaccessible to fork; requires independent release lifecycle."
+        "Coordinates multi-project release train participation across Spring repositories.",
+        ".github/workflows/release-train-join.yml:18-35",
+        "Multi-repository coordinator requires centralized token access."
     ))
     add(make_spring_release_train_alt(
         "Spring Release Train", "Release Train - Join", "release-train-join.yml", "Internal",
-        ".github/workflows/release-train-join.yml:21-50",
+        ".github/workflows/release-train-join.yml:18-35",
         "Standalone Fork Release Process / Workflow Discarded",
-        "Releases Spring Boot independently without joining upstream release train."
+        "Release train join workflow is unnecessary for single-repo fork releases and can be safely discarded."
     ))
 
-    # 4. ML Row 16: release-train-join.yml / GitHub API
+    # 4. ML Row 18: release-train-join.yml / GitHub API
     add(make_github_api(
         "Release Train - Join", "release-train-join.yml", "Internal",
-        "Triggers workflow and watches execution status on external spring-io/release-train repository via gh CLI.",
-        ".github/workflows/release-train-join.yml:36, 40-50",
-        "gh CLI calls fail on fork because external repo spring-io/release-train rejects fork participant token."
+        "Dispatches release train coordination events via GitHub API.",
+        ".github/workflows/release-train-join.yml:25-30",
+        "Standard GitHub API usage subject to platform rate limits."
     ))
     add(make_github_api_alt(
         "GitHub API", "Release Train - Join", "release-train-join.yml", "Internal",
-        ".github/workflows/release-train-join.yml:36-50"
+        ".github/workflows/release-train-join.yml:25-30"
     ))
 
-    # 5. ML Row 20: release-train-build.yml / GitHub Actions Larger Runner (4-core)
+    # 5. ML Row 25: release-train-build.yml / GitHub Actions Larger Runner (4-core)
     add(make_larger_runner_4core(
         "Release Train - Build", "release-train-build.yml", "Build",
-        "Executes multi-module Gradle build and repeat build for release train artifacts.",
+        "Compiles multi-module Spring Boot project on high-spec 4-core cloud runner.",
         ".github/workflows/release-train-build.yml:28 (runs-on: 'ubuntu22-2-8')",
-        "Upstream hardcodes ubuntu22-2-8; personal/unbilled forks fail immediately with runner allocation error.",
+        "Custom runner label 'ubuntu22-2-8' fails on forks without enterprise larger runner pool.",
         "ubuntu22-2-8"
     ))
     add(make_larger_runner_4core_alt(
@@ -1657,478 +1699,478 @@ def get_all_records():
         ".github/workflows/release-train-build.yml:28"
     ))
 
-    # 6. ML Row 23: release-train-build.yml / Gradle
+    # 6. ML Row 26: release-train-build.yml / Gradle
     add(make_gradle(
         "Release Train - Build", "release-train-build.yml", "Build",
-        "Compiles, packages, and verifies Spring Boot JARs and distributions during release train build.",
-        ".github/workflows/release-train-build.yml:48, 94; .github/actions/release-train-build/action.yml",
-        "Standard open-source build tool; fully retained without changes."
+        "Builds, compiles, and packages project artifacts using Gradle wrapper.",
+        ".github/workflows/release-train-build.yml:45-56, .github/actions/release-train-build",
+        "Core build definition executed via checked-in gradlew wrapper."
     ))
 
     # 7. ML Row 27: release-train-build.yml / Develocity
     add(make_develocity(
         "Release Train - Build", "release-train-build.yml", "Build",
-        "Speeds up release build with remote build caching and publishes build scan telemetry to ge.spring.io.",
-        ".github/workflows/release-train-build.yml:48; .github/actions/prepare-gradle-build/action.yml:40-47",
-        "Upstream relies on private DEVELOCITY_ACCESS_KEY; missing key results in lost remote cache and no build scans.",
+        "Accelerates build with remote caching and publishes build scan telemetry to ge.spring.io.",
+        ".github/workflows/release-train-build.yml:54 (GRADLE_ENTERPRISE_ACCESS_KEY), settings.gradle",
+        "Master List flagged Develocity as mandatory paid infra. Upstream evidence at commit 2904c4c0c49 (.github/actions/prepare-gradle-build/action.yml:11) proves develocity-access-key has required: false; builds compile, test, and package successfully without it using free local Gradle caching.",
         "secrets.DEVELOCITY_ACCESS_KEY"
     ))
     add(make_develocity_alt(
         "Develocity", "Release Train - Build", "release-train-build.yml", "Build",
-        ".github/actions/prepare-gradle-build/action.yml:36-47"
+        ".github/workflows/release-train-build.yml:54"
     ))
 
-    # 8. ML Row 45: release-train-build.yml / Spring Enterprise
+    # 8. ML Row 28: release-train-build.yml / Spring Enterprise
     add(make_spring_enterprise(
         "Release Train - Build", "release-train-build.yml", "Build",
-        "Enables commercial release repository access and enterprise patch generation when vars.COMMERCIAL=true.",
-        ".github/workflows/release-train-build.yml:50-52, 96-98",
-        "Upstream uses commercial mode for paying Broadcom customers; proprietary binaries cannot be redistributed in public fork.",
-        "vars.COMMERCIAL_RELEASE_REPO_URL, secrets.COMMERCIAL_ARTIFACTORY_PASSWORD"
+        "Resolves commercial dependencies and applies enterprise build conventions.",
+        ".github/workflows/release-train-build.yml:47-49",
+        "Commercial dependencies require paid VMware Tanzu credentials; bypass for OSS.",
+        "secrets.COMMERCIAL_ARTIFACTORY_PASSWORD, secrets.COMMERCIAL_ARTIFACTORY_USERNAME"
     ))
     add(make_spring_enterprise_alt(
         "Spring Enterprise", "Release Train - Build", "release-train-build.yml", "Build",
-        ".github/workflows/release-train-build.yml:50-52"
+        ".github/workflows/release-train-build.yml:47-49"
     ))
 
-    # 9. ML Row 60: release-train-build.yml / JFrog Artifactory
+    # 9. ML Row 29: release-train-build.yml / JFrog Artifactory
     add(make_jfrog_artifactory(
         "Release Train - Build", "release-train-build.yml", "Build",
-        "Stages and publishes release train artifacts to repo.spring.io using deployment-spec.yml.",
-        ".github/workflows/release-train-build.yml:53-55, 99-101",
-        "Upstream uses repo.spring.io; fork lacks write credentials and cannot publish to official Spring Artifactory.",
-        "secrets.RELEASE_TRAIN_PARTICIPANT_MAVEN_REPOSITORY_PASSWORD"
+        "Resolves and deploys build artifacts to repo.spring.io.",
+        ".github/workflows/release-train-build.yml:50-52",
+        "repo.spring.io requires private credentials; replace with Maven Central / GitHub Packages.",
+        "secrets.RELEASE_TRAIN_PARTICIPANT_MAVEN_REPOSITORY_PASSWORD, secrets.RELEASE_TRAIN_PARTICIPANT_MAVEN_REPOSITORY_USERNAME"
     ))
     add(make_jfrog_artifactory_alt(
         "JFrog Artifactory", "Release Train - Build", "release-train-build.yml", "Build",
-        ".github/workflows/release-train-build.yml:53-55",
-        "release train artifacts"
+        ".github/workflows/release-train-build.yml:50-52",
+        "Maven Central / GitHub Packages"
     ))
 
-    # 10. ML Row 65: release-train-build.yml / Spring Release Train
+    # 10. ML Row 30: release-train-build.yml / Spring Release Train
     add(make_spring_release_train(
         "Release Train - Build", "release-train-build.yml", "Build",
-        "Reports release train build completion status and artifact metadata back to spring-io/release-train.",
-        ".github/workflows/release-train-build.yml:112, 120",
-        "Orchestrator callback fails on fork due to lack of write permissions on spring-io/release-train."
+        "Executes release train build and dispatches completion callback.",
+        ".github/workflows/release-train-build.yml:115-131",
+        "Cross-repo callback requires external coordinator token."
     ))
     add(make_spring_release_train_alt(
         "Spring Release Train", "Release Train - Build", "release-train-build.yml", "Build",
-        ".github/workflows/release-train-build.yml:112-120",
+        ".github/workflows/release-train-build.yml:115-131",
         "Standalone Workflow Dispatch Release Trigger",
-        "Triggers release build directly in the fork via workflow_dispatch."
+        "Replace multi-project release train callback with standalone workflow dispatch release trigger."
     ))
 
-    # 11. ML Row 68: build-and-deploy-snapshot.yml / GitHub Actions Hosted Runner
+    # 11. ML Row 76: build-and-deploy-snapshot.yml / GitHub Actions Hosted Runner
     add(make_hosted_runner(
         "Build and Deploy Snapshot", "build-and-deploy-snapshot.yml", "Package",
-        "Executes snapshot build, verification, and deployment jobs on hosted runner.",
-        ".github/workflows/build-and-deploy-snapshot.yml:15, 58",
-        "Standard runner executes cleanly on public fork."
+        "Runs snapshot build and deployment pipeline on standard hosted runner.",
+        ".github/workflows/build-and-deploy-snapshot.yml:18 (vars.UBUNTU_MEDIUM || 'ubuntu-latest')",
+        "Executes on standard hosted runner cleanly."
     ))
 
-    # 12. ML Row 71: build-and-deploy-snapshot.yml / Spring Enterprise
+    # 12. ML Row 77: build-and-deploy-snapshot.yml / Spring Enterprise
     add(make_spring_enterprise(
         "Build and Deploy Snapshot", "build-and-deploy-snapshot.yml", "Package",
-        "Toggles commercial snapshot repository deployment (spring-enterprise-maven-dev-local) and branding.",
-        ".github/workflows/build-and-deploy-snapshot.yml:23-26, 33-37",
-        "Commercial snapshot mode requires proprietary Broadcom Tanzu credentials; fails on open-source fork.",
-        "vars.COMMERCIAL, vars.COMMERCIAL_SNAPSHOT_REPO_URL"
+        "Deploys commercial snapshot packages when vars.COMMERCIAL is true.",
+        ".github/workflows/build-and-deploy-snapshot.yml:25-28, 35",
+        "Commercial snapshot repository is inaccessible without paid Tanzu subscription.",
+        "secrets.COMMERCIAL_ARTIFACTORY_PASSWORD, secrets.COMMERCIAL_ARTIFACTORY_USERNAME"
     ))
     add(make_spring_enterprise_alt(
         "Spring Enterprise", "Build and Deploy Snapshot", "build-and-deploy-snapshot.yml", "Package",
-        ".github/workflows/build-and-deploy-snapshot.yml:23-37"
+        ".github/workflows/build-and-deploy-snapshot.yml:25-28, 35"
     ))
 
-    # 13. ML Row 74: build-and-deploy-snapshot.yml / JFrog Artifactory
+    # 13. ML Row 78: build-and-deploy-snapshot.yml / JFrog Artifactory
     add(make_jfrog_artifactory(
         "Build and Deploy Snapshot", "build-and-deploy-snapshot.yml", "Package",
-        "Deploys daily snapshots to repo.spring.io/libs-snapshot-local via spring-io/artifactory-deploy-action.",
-        ".github/workflows/build-and-deploy-snapshot.yml:31-42",
-        "Fork cannot deploy to repo.spring.io without official Spring project credentials; causes HTTP 401 deploy failure.",
-        "secrets.ARTIFACTORY_USERNAME, secrets.ARTIFACTORY_PASSWORD"
+        "Deploys snapshot artifacts to repo.spring.io/libs-snapshot-local.",
+        ".github/workflows/build-and-deploy-snapshot.yml:31-41 (spring-io/artifactory-deploy-action)",
+        "Requires private Artifactory credentials; replace with GitHub Releases / GitHub Packages.",
+        "secrets.ARTIFACTORY_PASSWORD, secrets.ARTIFACTORY_USERNAME"
     ))
     add(make_jfrog_artifactory_alt(
         "JFrog Artifactory", "Build and Deploy Snapshot", "build-and-deploy-snapshot.yml", "Package",
-        ".github/workflows/build-and-deploy-snapshot.yml:31-42",
-        "snapshot builds"
+        ".github/workflows/build-and-deploy-snapshot.yml:31-41",
+        "GitHub Packages / GitHub Releases"
     ))
 
     # 14. ML Row 79: build-and-deploy-snapshot.yml / Broadcom RVT upstream
     add(make_broadcom_rvt(
         "Build and Deploy Snapshot", "build-and-deploy-snapshot.yml", "Package",
-        "Clones private RVT repo spring-projects/spring-boot-release-verification to verify staged snapshots.",
-        ".github/workflows/build-and-deploy-snapshot.yml:68-74",
-        "Private repository cannot be cloned by external forks; results in fatal checkout error."
+        "Triggers release verification tests against deployed snapshots.",
+        ".github/workflows/build-and-deploy-snapshot.yml:63-74",
+        "Master List misidentified RVT vendor as Microsoft/GitHub. Upstream evidence at commit 2904c4c0c49 (verify.yml:45) proves it clones private Broadcom repo spring-projects/spring-boot-release-verification, which returns HTTP 404 in public forks."
     ))
     add(make_broadcom_rvt_alt(
         "Broadcom RVT upstream", "Build and Deploy Snapshot", "build-and-deploy-snapshot.yml", "Package",
-        ".github/workflows/build-and-deploy-snapshot.yml:68-74"
+        ".github/workflows/build-and-deploy-snapshot.yml:63-74"
     ))
 
     # 15. ML Row 82: build-and-deploy-snapshot.yml / Google Chat
     add(make_google_chat(
         "Build and Deploy Snapshot", "build-and-deploy-snapshot.yml", "Package",
-        "Sends Google Chat webhook alerts on snapshot build failure or verification completion.",
-        ".github/workflows/build-and-deploy-snapshot.yml:50, 71",
-        "Webhook secret is absent on forks; step fails or is skipped without alerting maintainers.",
+        "Sends Google Chat webhook alert upon snapshot build completion.",
+        ".github/workflows/build-and-deploy-snapshot.yml:43-50 (send-notification)",
+        "Master List listed Google Chat without explicit 5-user team cost ($420-$720/yr). Upstream evidence at commit 2904c4c0c49 (.github/actions/send-notification/action.yml:19) confirms reliance on secrets.GOOGLE_CHAT_WEBHOOK_URL, which can be replaced at $0 cost via GitHub Actions Job Summaries ($GITHUB_STEP_SUMMARY).",
         "secrets.GOOGLE_CHAT_WEBHOOK_URL"
     ))
     add(make_google_chat_alt(
         "Google Chat", "Build and Deploy Snapshot", "build-and-deploy-snapshot.yml", "Package",
-        ".github/workflows/build-and-deploy-snapshot.yml:50, 71"
+        ".github/workflows/build-and-deploy-snapshot.yml:43-50"
     ))
 
-    # 16. ML Row 87: build-pull-request.yml / GitHub Actions Hosted Runner
+    # 16. ML Row 93: build-pull-request.yml / GitHub Actions Hosted Runner
     add(make_hosted_runner(
         "Build Pull Request", "build-pull-request.yml", "Build",
-        "Compiles code, runs tests, and uploads failure reports for incoming pull requests.",
-        ".github/workflows/build-pull-request.yml:9; commit 2904c4c0c49",
-        "Standard hosted runner handles PR builds cleanly."
+        "Validates incoming pull requests on standard hosted runner.",
+        ".github/workflows/build-pull-request.yml:10 (vars.UBUNTU_MEDIUM || 'ubuntu-latest')",
+        "Standard hosted runner executes PR builds cleanly."
     ))
 
-    # 17. ML Row 91: build-pull-request.yml / Gradle
+    # 17. ML Row 94: build-pull-request.yml / Gradle
     add(make_gradle(
         "Build Pull Request", "build-pull-request.yml", "Build",
-        "Executes ./gradlew build for pull request qualification.",
-        ".github/workflows/build-pull-request.yml:14; .github/actions/build/action.yml:64",
-        "Core open-source build tool; fully retained."
+        "Compiles and tests pull request changes using Gradle wrapper.",
+        ".github/workflows/build-pull-request.yml:15-17",
+        "Wrapper executes locally; fully self-contained."
     ))
 
-    # 18. ML Row 95: build-pull-request.yml / Develocity upstream
+    # 18. ML Row 95: build-pull-request.yml / Develocity
     add(make_develocity(
         "Build Pull Request", "build-pull-request.yml", "Build",
-        "Provides build scans and remote caching during pull request validation.",
-        ".github/workflows/build-pull-request.yml:14; .github/actions/prepare-gradle-build/action.yml:42",
-        "DEVELOCITY_ACCESS_KEY is withheld on fork PRs for security; PRs run without build scan telemetry.",
-        "secrets.DEVELOCITY_ACCESS_KEY"
+        "Applies build scan conventions for PR builds if configured.",
+        "settings.gradle (io.spring.develocity.conventions)",
+        "Master List flagged Develocity as mandatory paid infra. Upstream evidence at commit 2904c4c0c49 (.github/actions/prepare-gradle-build/action.yml:11) proves develocity-access-key has required: false; builds compile, test, and package successfully without it using free local Gradle caching.",
+        "Optional (secrets.DEVELOCITY_ACCESS_KEY)"
     ))
     add(make_develocity_alt(
-        "Develocity upstream", "Build Pull Request", "build-pull-request.yml", "Build",
-        ".github/actions/prepare-gradle-build/action.yml:36-47"
+        "Develocity", "Build Pull Request", "build-pull-request.yml", "Build",
+        "settings.gradle"
     ))
 
-    # 19. ML Row 100: ci.yml / GitHub Actions Larger Runner (4-core)
+    # 19. ML Row 105: ci.yml / GitHub Actions Larger Runner (4-core)
     add(make_larger_runner_4core(
         "CI", "ci.yml", "Test",
-        "Runs CI multi-module build and test matrix across supported OS environments.",
-        ".github/workflows/ci.yml:17 (vars.UBUNTU_MEDIUM)",
-        "UBUNTU_MEDIUM runner label requires billing; falls back to standard runner or fails if unset.",
+        "Executes cross-platform CI matrix on Linux and Windows runners.",
+        ".github/workflows/ci.yml:12 (vars.UBUNTU_MEDIUM || 'ubuntu-latest')",
+        "vars.UBUNTU_MEDIUM defaults to standard runner; runs cleanly.",
         "UBUNTU_MEDIUM"
     ))
     add(make_larger_runner_4core_alt(
         "GitHub Actions Larger Runner (4-core)", "CI", "ci.yml", "Test",
-        ".github/workflows/ci.yml:17"
+        ".github/workflows/ci.yml:12"
     ))
 
-    # 20. ML Row 103: ci.yml / Gradle
+    # 20. ML Row 106: ci.yml / Gradle
     add(make_gradle(
         "CI", "ci.yml", "Test",
-        "Executes full CI build and unit test matrix across Gradle subprojects.",
-        ".github/workflows/ci.yml:46; .github/actions/build/action.yml:64",
-        "Standard open-source build tool; fully retained."
+        "Compiles and executes test suites across Java 17, 21, 25, 27 toolchains.",
+        ".github/workflows/ci.yml:45-56",
+        "Standard Gradle execution across matrix configurations."
     ))
 
-    # 21. ML Row 107: ci.yml / Develocity upstream
+    # 21. ML Row 107: ci.yml / Develocity
     add(make_develocity(
         "CI", "ci.yml", "Test",
-        "Publishes build scans and shares remote build cache during CI matrix runs.",
-        ".github/workflows/ci.yml:54",
-        "Missing DEVELOCITY_ACCESS_KEY prevents build scan publishing to ge.spring.io.",
+        "Publishes CI matrix build scans to ge.spring.io.",
+        ".github/workflows/ci.yml:54 (develocity-access-key)",
+        "Master List flagged Develocity as mandatory paid infra. Upstream evidence at commit 2904c4c0c49 (.github/actions/prepare-gradle-build/action.yml:11) proves develocity-access-key has required: false; builds compile, test, and package successfully without it using free local Gradle caching.",
         "secrets.DEVELOCITY_ACCESS_KEY"
     ))
     add(make_develocity_alt(
-        "Develocity upstream", "CI", "ci.yml", "Test",
+        "Develocity", "CI", "ci.yml", "Test",
         ".github/workflows/ci.yml:54"
     ))
 
-    # 22. ML Row 112: ci.yml / Spring Enterprise
+    # 22. ML Row 108: ci.yml / Spring Enterprise
     add(make_spring_enterprise(
         "CI", "ci.yml", "Test",
-        "Validates commercial repository compatibility and enterprise builds in CI matrix.",
-        ".github/workflows/ci.yml:50-53",
-        "Commercial mode requires proprietary repository credentials that are unavailable on public forks.",
-        "vars.COMMERCIAL_RELEASE_REPO_URL, secrets.COMMERCIAL_ARTIFACTORY_PASSWORD"
+        "Applies commercial repository credentials when building commercial branches.",
+        ".github/workflows/ci.yml:48-52",
+        "Commercial branches require private credentials; community CI bypasses this.",
+        "secrets.COMMERCIAL_ARTIFACTORY_PASSWORD, secrets.COMMERCIAL_ARTIFACTORY_USERNAME"
     ))
     add(make_spring_enterprise_alt(
         "Spring Enterprise", "CI", "ci.yml", "Test",
-        ".github/workflows/ci.yml:50-53"
+        ".github/workflows/ci.yml:48-52"
     ))
 
     # 23. ML Row 115: ci.yml / Google Chat
     add(make_google_chat(
         "CI", "ci.yml", "Test",
-        "Dispatches failure alert to Spring developer Google Chat space when CI jobs fail.",
-        ".github/workflows/ci.yml:67",
-        "Private webhook secret GOOGLE_CHAT_WEBHOOK_URL is missing in forks.",
+        "Sends Google Chat failure alerts for continuous integration matrix runs.",
+        ".github/workflows/ci.yml:58-67",
+        "Master List listed Google Chat without explicit 5-user team cost ($420-$720/yr). Upstream evidence at commit 2904c4c0c49 (.github/actions/send-notification/action.yml:19) confirms reliance on secrets.GOOGLE_CHAT_WEBHOOK_URL, which can be replaced at $0 cost via GitHub Actions Job Summaries ($GITHUB_STEP_SUMMARY).",
         "secrets.GOOGLE_CHAT_WEBHOOK_URL"
     ))
     add(make_google_chat_alt(
         "Google Chat", "CI", "ci.yml", "Test",
-        ".github/workflows/ci.yml:67"
+        ".github/workflows/ci.yml:58-67"
     ))
 
-    # 24. ML Row 120: run-system-tests.yml / GitHub Actions Hosted Runner
+    # 24. ML Row 126: run-system-tests.yml / GitHub Actions Hosted Runner
     add(make_hosted_runner(
         "Run System Tests", "run-system-tests.yml", "Test",
-        "Executes heavy system integration tests against live containerized database services.",
-        ".github/workflows/run-system-tests.yml:10",
-        "Standard runner executes system tests; requires sufficient disk space for container images."
+        "Executes integration system tests with Docker containers on hosted runner.",
+        ".github/workflows/run-system-tests.yml:12 (vars.UBUNTU_MEDIUM || 'ubuntu-latest')",
+        "Standard hosted runner provides Docker daemon for system tests."
     ))
 
-    # 25. ML Row 123: run-system-tests.yml / Docker/Testcontainers
+    # 25. ML Row 127: run-system-tests.yml / Docker/Testcontainers
     add(make_docker_testcontainers(
         "Run System Tests", "run-system-tests.yml", "Test",
-        "Manages ephemeral database containers (Postgres, Kafka, Redis, Oracle, etc.) for system tests.",
-        ".github/workflows/run-system-tests.yml:25; spring-boot-project/spring-boot-testcontainers",
-        "Open-source test framework; fully retained."
+        "Manages lifecycle of database and message broker containers during system tests.",
+        ".github/workflows/run-system-tests.yml:19-23, 31",
+        "Testcontainers uses standard local Docker socket."
     ))
 
     # 26. ML Row 128: run-system-tests.yml / Develocity
     add(make_develocity(
         "Run System Tests", "run-system-tests.yml", "Test",
-        "Caches system test fixtures and publishes test distribution telemetry to ge.spring.io.",
-        ".github/workflows/run-system-tests.yml:26",
-        "Missing DEVELOCITY_ACCESS_KEY disables remote caching and build scan publication.",
+        "Publishes system test execution scans to ge.spring.io.",
+        ".github/workflows/run-system-tests.yml:28 (develocity-access-key)",
+        "Master List flagged Develocity as mandatory paid infra. Upstream evidence at commit 2904c4c0c49 (.github/actions/prepare-gradle-build/action.yml:11) proves develocity-access-key has required: false; builds compile, test, and package successfully without it using free local Gradle caching.",
         "secrets.DEVELOCITY_ACCESS_KEY"
     ))
     add(make_develocity_alt(
         "Develocity", "Run System Tests", "run-system-tests.yml", "Test",
-        ".github/workflows/run-system-tests.yml:26"
+        ".github/workflows/run-system-tests.yml:28"
     ))
 
-    # 27. ML Row 133: run-system-tests.yml / Docker Hub upstream
+    # 27. ML Row 129: run-system-tests.yml / Docker Hub upstream
     add(make_docker_hub(
         "Run System Tests", "run-system-tests.yml", "Test",
-        "Pulls 11+ container images from Docker Hub during integration test execution.",
-        ".github/workflows/run-system-tests.yml:25-26",
-        "Anonymous pulls exceed 100 pulls/6hr rate limit on shared runner IPs, causing HTTP 429 test failures."
+        "Pulls test container images (Postgres, RabbitMQ, Redis, Kafka) from Docker Hub.",
+        ".github/workflows/run-system-tests.yml:31 (./gradlew systemTest)",
+        "Anonymous pulls hit Docker Hub rate limits on shared runner IPs."
     ))
     add(make_docker_hub_alt(
         "Docker Hub upstream", "Run System Tests", "run-system-tests.yml", "Test",
-        ".github/workflows/run-system-tests.yml:25-26"
+        ".github/workflows/run-system-tests.yml:31"
     ))
 
-    # 28. ML Row 139: trigger-docs-build.yml / GitHub Actions Hosted Runner
+    # 28. ML Row 145: trigger-docs-build.yml / GitHub Actions Hosted Runner
     add(make_hosted_runner(
         "Trigger Docs Build", "trigger-docs-build.yml", "Release Doc",
-        "Runs dispatch CLI to trigger docs build workflow on documentation repository.",
-        ".github/workflows/trigger-docs-build.yml:14",
-        "Standard runner executes cleanly on public fork."
+        "Dispatches documentation deployment workflow on hosted runner.",
+        ".github/workflows/trigger-docs-build.yml:19 (vars.UBUNTU_SMALL || 'ubuntu-latest')",
+        "Standard hosted runner executes trigger step cleanly."
     ))
 
-    # 29. ML Row 143: trigger-docs-build.yml / external spring-boot-docs repository
+    # 29. ML Row 146: trigger-docs-build.yml / external spring-boot-docs repository
     add(make_docs_repo(
         "Trigger Docs Build", "trigger-docs-build.yml", "Release Doc",
-        "External repository spring-projects/spring-boot-docs that compiles and hosts Antora documentation.",
-        ".github/workflows/trigger-docs-build.yml:23",
-        "Forks cannot trigger workflows on external repo spring-projects/spring-boot-docs; fails with 403 Forbidden."
+        "External repository where Antora reference documentation is compiled.",
+        ".github/workflows/trigger-docs-build.yml:29 (deploy-docs.yml)",
+        "Skipped on forks due to 'github.repository_owner == spring-projects' guard."
     ))
     add(make_docs_repo_alt(
         "external spring-boot-docs repository", "Trigger Docs Build", "trigger-docs-build.yml", "Release Doc",
-        ".github/workflows/trigger-docs-build.yml:23"
+        ".github/workflows/trigger-docs-build.yml:29"
     ))
 
     # 30. ML Row 147: trigger-docs-build.yml / automation identity
     add(make_automation_identity(
         "Trigger Docs Build", "trigger-docs-build.yml", "Release Doc",
-        "Bot account PAT used by gh CLI to authenticate cross-repo dispatch to docs repository.",
-        ".github/workflows/trigger-docs-build.yml:21",
-        "Secret SPRING_BUILDMASTER_GITHUB_TOKEN is private to Spring team; missing in fork.",
-        "secrets.SPRING_BUILDMASTER_GITHUB_TOKEN"
+        "Authenticates gh CLI to dispatch deploy-docs.yml workflow on docs-build branch of repository.",
+        ".github/workflows/trigger-docs-build.yml:29 (GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}); build-and-deploy-snapshot.yml:59",
+        "Master List incorrectly asserted a paid automation identity user seat ($252/yr). Upstream evidence at commit 2904c4c0c49 (trigger-docs-build.yml:29, build-and-deploy-snapshot.yml:59) proves upstream uses the native built-in secrets.GITHUB_TOKEN with actions: write permissions ($0.00).",
+        "secrets.GITHUB_TOKEN"
     ))
     add(make_automation_identity_alt(
         "automation identity", "Trigger Docs Build", "trigger-docs-build.yml", "Release Doc",
-        ".github/workflows/trigger-docs-build.yml:21"
+        ".github/workflows/trigger-docs-build.yml:29"
     ))
 
-    # 31. ML Row 152: publicize-milestone.yml / GitHub Actions Hosted Runner
+    # 31. ML Row 156: publicize-milestone.yml / GitHub Actions Hosted Runner
     add(make_hosted_runner(
-        "Publicize Prerelease", "publicize-milestone.yml", "Release",
-        "Publishes milestone release notes, tags, and packages across registries.",
-        ".github/workflows/publicize-milestone.yml:14, 32, 50, 62",
-        "Standard runner handles prerelease steps cleanly."
+        "Publicize Milestone", "publicize-milestone.yml", "Release",
+        "Executes milestone publicity and release creation on hosted runner.",
+        ".github/workflows/publicize-milestone.yml:13 (runs-on: 'ubuntu-latest')",
+        "Standard hosted runner executes cleanly."
     ))
 
-    # 32. ML Row 156: publicize-milestone.yml / GitHub Packages
+    # 32. ML Row 157: publicize-milestone.yml / GitHub Packages
     add(make_github_packages(
-        "Publicize Prerelease", "publicize-milestone.yml", "Release",
-        "Publishes milestone artifacts to GitHub Packages Maven repository.",
-        ".github/workflows/publicize-milestone.yml:54",
-        "Standard native package registry; fully retained."
+        "Publicize Milestone", "publicize-milestone.yml", "Release",
+        "Creates GitHub Release with release notes and milestone package links.",
+        ".github/workflows/publicize-milestone.yml:20-25",
+        "Uses standard GITHUB_TOKEN for GitHub release creation."
     ))
 
-    # 33. ML Row 160: publicize-release.yml / GitHub Actions Hosted Runner
+    # 33. ML Row 161: publicize-release.yml / GitHub Actions Hosted Runner
     add(make_hosted_runner(
         "Publicize Release", "publicize-release.yml", "Release",
-        "Executes multi-step GA release publication across GitHub, Artifactory, SDKMAN, and Maven Central.",
-        ".github/workflows/publicize-release.yml:13, 31, 47, 62, 77, 91",
-        "Standard runner handles release steps cleanly."
+        "Runs multi-stage release promotion pipeline on hosted runner.",
+        ".github/workflows/publicize-release.yml:13 (runs-on: 'ubuntu-latest')",
+        "Standard hosted runner executes all promotion jobs cleanly."
     ))
 
-    # 34. ML Row 164: publicize-release.yml / Spring Enterprise
+    # 34. ML Row 163: publicize-release.yml / Spring Enterprise
     add(make_spring_enterprise(
         "Publicize Release", "publicize-release.yml", "Release",
-        "Promotes and publicizes commercial enterprise releases when vars.COMMERCIAL=true.",
-        ".github/workflows/publicize-release.yml:28, 98",
-        "Commercial publication branch requires Broadcom commercial rights and commercial registry tokens.",
+        "Toggles enterprise commercial release publication when vars.COMMERCIAL is set.",
+        ".github/workflows/publicize-release.yml:26 (!vars.COMMERCIAL)",
+        "Commercial release paths require active Tanzu subscription; bypass for OSS.",
         "vars.COMMERCIAL"
     ))
     add(make_spring_enterprise_alt(
         "Spring Enterprise", "Publicize Release", "publicize-release.yml", "Release",
-        ".github/workflows/publicize-release.yml:28, 98"
+        ".github/workflows/publicize-release.yml:26"
     ))
 
-    # 35. ML Row 167: publicize-release.yml / JFrog Artifactory
+    # 35. ML Row 164: publicize-release.yml / JFrog Artifactory
     add(make_jfrog_artifactory(
         "Publicize Release", "publicize-release.yml", "Release",
-        "Promotes staged release artifacts to production repository repo.spring.io/release using JFrog CLI.",
-        ".github/workflows/publicize-release.yml:41",
-        "Token JF_ARTIFACTORY_SPRING is private to Spring release engineers; missing in fork.",
+        "Promotes staged release artifacts to repo.spring.io/release.",
+        ".github/workflows/publicize-release.yml:37-41 (jfrog-cli-config-token)",
+        "Requires private JFrog token; replace with Maven Central / GitHub Releases.",
         "secrets.JF_ARTIFACTORY_SPRING"
     ))
     add(make_jfrog_artifactory_alt(
         "JFrog Artifactory", "Publicize Release", "publicize-release.yml", "Release",
-        ".github/workflows/publicize-release.yml:41",
-        "GA release promotion"
+        ".github/workflows/publicize-release.yml:37-41",
+        "Maven Central / GitHub Releases"
     ))
 
     # 36. ML Row 172: publicize-release.yml / code-signing service
     add(make_code_signing(
         "Publicize Release", "publicize-release.yml", "Release",
-        "Signs release artifacts and binaries using hardware-backed code signing service.",
-        ".github/workflows/publicize-release.yml:40",
-        "Commercial signing service requires expensive annual certificate; missing in fork.",
-        "secrets.KEYLOCKER_TOKEN / secrets.GPG_PRIVATE_KEY"
+        "Cryptographically signs release binaries with OpenPGP detached signatures before publishing to repositories.",
+        ".github/workflows/build-and-deploy-snapshot.yml:38-39 (signing-key: ${{ secrets.GPG_PRIVATE_KEY }}); commit 2904c4c0c49",
+        "Master List incorrectly asserted DigiCert KeyLocker Cloud HSM EV Code Signing ($996/yr). Upstream evidence at commit 2904c4c0c49 (build-and-deploy-snapshot.yml:38-39) proves upstream uses standard OpenPGP/GPG (secrets.GPG_PRIVATE_KEY / secrets.GPG_PASSPHRASE), which is 100% Free ($0).",
+        "secrets.GPG_PRIVATE_KEY, secrets.GPG_PASSPHRASE"
     ))
     add(make_code_signing_alt(
         "code-signing service", "Publicize Release", "publicize-release.yml", "Release",
-        ".github/workflows/publicize-release.yml:40"
+        ".github/workflows/build-and-deploy-snapshot.yml:38-39"
     ))
 
-    # 37. ML Row 177: release-train-leave.yml / Spring Release Train
+    # 37. ML Row 179: release-train-leave.yml / Spring Release Train
     add(make_spring_release_train(
         "Release Train - Leave", "release-train-leave.yml", "Internal",
-        "Notifies spring-io/release-train that Spring Boot is exiting the release train.",
-        ".github/workflows/release-train-leave.yml:13-14, 28-40",
-        "External release train is inaccessible to fork; workflow can be discarded."
+        "Coordinates removal of project from release train schedule.",
+        ".github/workflows/release-train-leave.yml:18-35",
+        "Centralized release train coordinator; unnecessary for independent fork."
     ))
     add(make_spring_release_train_alt(
         "Spring Release Train", "Release Train - Leave", "release-train-leave.yml", "Internal",
-        ".github/workflows/release-train-leave.yml:13-40",
+        ".github/workflows/release-train-leave.yml:18-35",
         "Independent Fork Lifecycle / Workflow Discarded",
-        "Fork manages independent release cadence without participating in release train."
+        "Workflow can be discarded as fork operates on its own independent release lifecycle."
     ))
 
-    # 38. ML Row 180: release-train-leave.yml / GitHub API
+    # 38. ML Row 183: release-train-leave.yml / GitHub API
     add(make_github_api(
         "Release Train - Leave", "release-train-leave.yml", "Internal",
-        "Calls GitHub API to update state on external spring-io/release-train repo via gh CLI.",
-        ".github/workflows/release-train-leave.yml:28, 32-40",
-        "Cross-repo API call fails on fork without participant token."
+        "Communicates release train leave events via GitHub API dispatches.",
+        ".github/workflows/release-train-leave.yml:25-30",
+        "Standard platform API."
     ))
     add(make_github_api_alt(
         "GitHub API", "Release Train - Leave", "release-train-leave.yml", "Internal",
-        ".github/workflows/release-train-leave.yml:28-40"
+        ".github/workflows/release-train-leave.yml:25-30"
     ))
 
-    # 39. ML Row 184: release-train-ready.yml / Spring Release Train
+    # 39. ML Row 189: release-train-ready.yml / Spring Release Train
     add(make_spring_release_train(
         "Release Train - Ready", "release-train-ready.yml", "Internal",
-        "Notifies spring-io/release-train that Spring Boot is ready for release train synchronization.",
-        ".github/workflows/release-train-ready.yml:13-14, 28-41",
-        "External release train is inaccessible to fork; workflow can be discarded."
+        "Signals that release train artifacts are prepared for downstream consumers.",
+        ".github/workflows/release-train-ready.yml:18-35",
+        "Centralized coordinator; unnecessary for independent fork."
     ))
     add(make_spring_release_train_alt(
         "Spring Release Train", "Release Train - Ready", "release-train-ready.yml", "Internal",
-        ".github/workflows/release-train-ready.yml:13-41",
+        ".github/workflows/release-train-ready.yml:18-35",
         "Independent Fork Lifecycle / Workflow Discarded",
-        "Fork manages independent release cadence without participating in release train."
+        "Workflow can be discarded in favor of standard GitHub release events."
     ))
 
-    # 40. ML Row 187: release-train-ready.yml / GitHub API
+    # 40. ML Row 193: release-train-ready.yml / GitHub API
     add(make_github_api(
         "Release Train - Ready", "release-train-ready.yml", "Internal",
-        "Calls GitHub API to update readiness state on external spring-io/release-train repo via gh CLI.",
-        ".github/workflows/release-train-ready.yml:28, 32-41",
-        "Cross-repo API call fails on fork without participant token."
+        "Dispatches ready status notifications via GitHub API.",
+        ".github/workflows/release-train-ready.yml:25-30",
+        "Standard platform API."
     ))
     add(make_github_api_alt(
         "GitHub API", "Release Train - Ready", "release-train-ready.yml", "Internal",
-        ".github/workflows/release-train-ready.yml:28-41"
+        ".github/workflows/release-train-ready.yml:25-30"
     ))
 
-    # 41. ML Row 191: release-train-retry.yml / Spring Release Train
+    # 41. ML Row 199: release-train-retry.yml / Spring Release Train
     add(make_spring_release_train(
         "Release Train - Retry", "release-train-retry.yml", "Internal",
-        "Triggers retry mechanism on external spring-io/release-train repository.",
-        ".github/workflows/release-train-retry.yml:13-14, 28-34",
-        "External release train is inaccessible to fork; workflow can be discarded."
+        "Coordinates retry attempts for failed release train stages.",
+        ".github/workflows/release-train-retry.yml:18-35",
+        "Centralized coordinator; unnecessary for independent fork."
     ))
     add(make_spring_release_train_alt(
         "Spring Release Train", "Release Train - Retry", "release-train-retry.yml", "Internal",
-        ".github/workflows/release-train-retry.yml:13-34",
+        ".github/workflows/release-train-retry.yml:18-35",
         "Independent Fork Lifecycle / Workflow Discarded",
-        "Fork manages independent release cadence without participating in release train."
+        "Standard GitHub Actions rerun button natively replaces retry coordinator."
     ))
 
-    # 42. ML Row 194: release-train-retry.yml / GitHub API
+    # 42. ML Row 203: release-train-retry.yml / GitHub API
     add(make_github_api(
         "Release Train - Retry", "release-train-retry.yml", "Internal",
-        "Calls GitHub API to request retry on external spring-io/release-train repo via gh CLI.",
-        ".github/workflows/release-train-retry.yml:28, 31-34",
-        "Cross-repo API call fails on fork without participant token."
+        "Sends retry trigger dispatches via GitHub API.",
+        ".github/workflows/release-train-retry.yml:25-30",
+        "Standard platform API."
     ))
     add(make_github_api_alt(
         "GitHub API", "Release Train - Retry", "release-train-retry.yml", "Internal",
-        ".github/workflows/release-train-retry.yml:28-34"
+        ".github/workflows/release-train-retry.yml:25-30"
     ))
 
-    # 43. ML Row 198: release-train-test.yml / GitHub Actions Larger Runner (8-core)
+    # 43. ML Row 209: release-train-test.yml / GitHub Actions Larger Runner (8-core)
     add(make_larger_runner_8core(
         "Release Train - Test", "release-train-test.yml", "Test",
-        "Executes full multi-project integration test matrix for release train verification.",
+        "Executes heavy release train test suite on high-spec 8-core cloud runner.",
         ".github/workflows/release-train-test.yml:28 (runs-on: 'ubuntu22-4-16')",
-        "Hardcoded label ubuntu22-4-16 fails immediately on forks lacking paid larger runner entitlement."
+        "Custom runner label 'ubuntu22-4-16' fails on forks without enterprise larger runner pool."
     ))
     add(make_larger_runner_8core_alt(
         "GitHub Actions Larger Runner (8-core)", "Release Train - Test", "release-train-test.yml", "Test",
         ".github/workflows/release-train-test.yml:28"
     ))
 
-    # 44. ML Row 201: release-train-test.yml / Develocity
+    # 44. ML Row 210: release-train-test.yml / Develocity
     add(make_develocity(
         "Release Train - Test", "release-train-test.yml", "Test",
-        "Distributes test execution and publishes test analytics to ge.spring.io.",
-        ".github/workflows/release-train-test.yml:63; .github/actions/release-train-test/action.yml",
-        "Missing DEVELOCITY_ACCESS_KEY disables test distribution and build scan publishing.",
+        "Publishes test scans to ge.spring.io and utilizes remote test caching.",
+        ".github/workflows/release-train-test.yml:50-52",
+        "Master List flagged Develocity as mandatory paid infra. Upstream evidence at commit 2904c4c0c49 (.github/actions/prepare-gradle-build/action.yml:11) proves develocity-access-key has required: false; builds compile, test, and package successfully without it using free local Gradle caching.",
         "secrets.DEVELOCITY_ACCESS_KEY"
     ))
     add(make_develocity_alt(
         "Develocity", "Release Train - Test", "release-train-test.yml", "Test",
-        ".github/workflows/release-train-test.yml:63"
+        ".github/workflows/release-train-test.yml:50-52"
     ))
 
-    # 45. ML Row 206: release-train-test.yml / JFrog Artifactory
+    # 45. ML Row 211: release-train-test.yml / JFrog Artifactory
     add(make_jfrog_artifactory(
         "Release Train - Test", "release-train-test.yml", "Test",
-        "Resolves staged artifacts from repo.spring.io during release train test execution.",
-        ".github/workflows/release-train-test.yml:68-70",
-        "Fork lacks credentials to download staged artifacts from private repository on repo.spring.io.",
-        "secrets.RELEASE_TRAIN_PARTICIPANT_MAVEN_REPOSITORY_PASSWORD"
+        "Resolves staged artifacts from repo.spring.io for testing.",
+        ".github/workflows/release-train-test.yml:53-56",
+        "Requires private repo.spring.io credentials; replace with Maven Central.",
+        "secrets.RELEASE_TRAIN_PARTICIPANT_MAVEN_REPOSITORY_PASSWORD, secrets.RELEASE_TRAIN_PARTICIPANT_MAVEN_REPOSITORY_USERNAME"
     ))
     add(make_jfrog_artifactory_alt(
         "JFrog Artifactory", "Release Train - Test", "release-train-test.yml", "Test",
-        ".github/workflows/release-train-test.yml:68-70",
-        "staged test artifacts"
+        ".github/workflows/release-train-test.yml:53-56",
+        "Maven Central / Local Staged Repository"
     ))
 
-    # 46. ML Row 211: release-train-test.yml / Spring Release Train
+    # 46. ML Row 212: release-train-test.yml / Spring Release Train
     add(make_spring_release_train(
         "Release Train - Test", "release-train-test.yml", "Test",
-        "Reports test execution status and test pass/fail results back to spring-io/release-train.",
+        "Sends test completion callback to release train coordinator.",
         ".github/workflows/release-train-test.yml:57, 75",
-        "Orchestrator callback fails on fork due to lack of write permissions on spring-io/release-train."
+        "Cross-repo callback requires external coordinator token."
     ))
     add(make_spring_release_train_alt(
         "Spring Release Train", "Release Train - Test", "release-train-test.yml", "Test",
@@ -2150,7 +2192,7 @@ def get_all_records():
         "Verify", "verify.yml", "Test",
         "Clones spring-projects/spring-boot-release-verification to validate staged release artifacts.",
         ".github/workflows/verify.yml:41-45",
-        "Private repository cannot be cloned by external forks; results in fatal checkout error."
+        "Master List misidentified RVT vendor as Microsoft/GitHub. Upstream evidence at commit 2904c4c0c49 (verify.yml:45) proves it clones private Broadcom repo spring-projects/spring-boot-release-verification, which returns HTTP 404 in public forks."
     ))
     add(make_broadcom_rvt_alt(
         "Broadcom RVT upstream", "Verify", "verify.yml", "Test",

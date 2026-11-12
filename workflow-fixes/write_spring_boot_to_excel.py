@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """
 Writes the 84 rows into the spring_boot sheet of workflow-fixes/data1.xlsx.
-Applies exact formatting, fills, fonts, alignments, borders, and column widths matching angular.
+Applies exact formatting, fills, fonts, alignments, borders, and column widths matching professional enterprise standards.
+Includes 45 columns with Category (Infra / Tool) as Column 2.
 """
 
 import openpyxl
@@ -24,6 +26,7 @@ ws.delete_rows(1, ws.max_row + 10)
 
 HEADERS = [
     "Name of Tool/Infra",
+    "Category",
     "Version",
     "Purpose",
     "Record Type (Upstream Original Tool / Recommended Fork Alternate)",
@@ -42,7 +45,7 @@ HEADERS = [
     "Subscription Models Vailable",
     "Selected Subscription Model",
     "Reason of selecting this subscription model",
-    "Category",
+    "Pipeline Stage",
     "Conponent Name",
     "workflow name",
     "workflow yml",
@@ -102,7 +105,7 @@ print(f"Retrieved {len(records)} records to write.")
 # 3. Write Data Rows
 for row_idx, record in enumerate(records, 2):
     ws.row_dimensions[row_idx].height = 24.0
-    rec_type = record[3] # Record Type
+    rec_type = record[4] # Record Type (now col index 4, since Category is col index 1)
     fill = FILL_ALTERNATE if rec_type == "Recommended Fork Alternate" else FILL_UPSTREAM
     
     for col_idx, val in enumerate(record, 1):
@@ -112,12 +115,58 @@ for row_idx, record in enumerate(records, 2):
         cell.alignment = ALIGN_DATA
         cell.border = BORDER_THIN
 
-# 4. Copy Column Widths from angular
-ws_ang = wb['angular']
-for col_idx in range(1, 45):
+# 4. Set Column Widths
+COLUMN_WIDTHS = {
+    1: 32.0,   # Name of Tool/Infra
+    2: 14.0,   # Category (Infra / Tool)
+    3: 38.0,   # Version
+    4: 45.0,   # Purpose
+    5: 32.0,   # Record Type
+    6: 35.0,   # Alternate of which
+    7: 40.0,   # Reason of selecting
+    8: 35.0,   # Any usage Limit
+    9: 16.0,   # Free/Paid
+    10: 35.0,  # Access-restricted
+    11: 30.0,  # License
+    12: 25.0,  # SPDX Identifier
+    13: 30.0,  # Copyleft Risk
+    14: 25.0,  # Commercial Redistribution
+    15: 35.0,  # Telemetry Risk
+    16: 22.0,  # Attribution
+    17: 25.0,  # Legal Verdict
+    18: 40.0,  # Subscription Models Available
+    19: 35.0,  # Selected Subscription Model
+    20: 35.0,  # Reason of selecting subscription
+    21: 18.0,  # Pipeline Stage
+    22: 20.0,  # Component Name
+    23: 25.0,  # Workflow Name
+    24: 25.0,  # Workflow YAML
+    25: 30.0,  # User Limit
+    26: 35.0,  # Concurrency Limits
+    27: 35.0,  # Token/Key/Secret
+    28: 35.0,  # License Suitable for 5 member team
+    29: 35.0,  # Subscription Suitable for 5 member team
+    30: 32.0,  # Required to Purchase ?
+    31: 45.0,  # Why Upstream Uses It
+    32: 30.0,  # Access Status in Fork
+    33: 25.0,  # Is Mandatory in Fork?
+    34: 40.0,  # Suitable for Release from Fork?
+    35: 35.0,  # Official site
+    36: 35.0,  # Purchase Link
+    37: 35.0,  # Price Link
+    38: 35.0,  # Suitable for Forked OSS?
+    39: 35.0,  # Why not suitable
+    40: 45.0,  # Alternate Options
+    41: 40.0,  # Best Alternate Option
+    42: 45.0,  # Reason selecting Best Alternate
+    43: 35.0,  # Replaces Upstream Tool
+    44: 55.0,  # issues identified in master_list
+    45: 55.0   # List of all evidence verified
+}
+
+for col_idx in range(1, 46):
     letter = get_column_letter(col_idx)
-    dim_ang = ws_ang.column_dimensions[letter]
-    width = dim_ang.width if dim_ang.width is not None else 50.0
+    width = COLUMN_WIDTHS.get(col_idx, 30.0)
     ws.column_dimensions[letter].width = width
 
 wb.save(wb_path)
