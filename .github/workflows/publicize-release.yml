@@ -289,25 +289,25 @@ jobs:
         with:
           fetch-depth: 0
       - name: Download Plugin Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: spring-boot-gradle-plugin-v${{ needs.read-version.outputs.version }}
           path: downloaded-artifacts/plugin/
         continue-on-error: true
       - name: Download Docs Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: spring-boot-docs-v${{ needs.read-version.outputs.version }}
           path: downloaded-artifacts/docs/
         continue-on-error: true
       - name: Download CLI Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: spring-boot-cli-dist-v${{ needs.read-version.outputs.version }}
           path: downloaded-artifacts/cli/
         continue-on-error: true
       - name: Download Homebrew Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: spring-boot-homebrew-formula-v${{ needs.read-version.outputs.version }}
           path: downloaded-artifacts/homebrew/
